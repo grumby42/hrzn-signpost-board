@@ -8,7 +8,7 @@
 <body>
 <title>HRZN Signpost Board</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<meta name="hrzn-build" content="HRZN-20261021-1359Z">
+<meta name="hrzn-build" content="HRZN-20261021-1405Z">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Public+Sans:wght@400;500;600&display=swap">
 <style>
@@ -18,6 +18,7 @@
   --bg:#f3f5f7; --panel:#ffffff; --ink:#111417; --ink-2:#4a525b; --ink-3:#6b737c;
   --rule:#d9dee3; --grid:#e8ebee; --hist:#2a78d6; --fcst:#b0306f; --band:rgba(176,48,111,.14);
   --accent:#b0306f; --chip:#eef1f4;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100;
   --good:#0ca30c; --warn:#fab219; --serious:#ec835a; --crit:#d03b3b;
   --f-display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
   --f-body:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
@@ -26,11 +27,11 @@
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
   --bg:#121417; --panel:#1a1a19; --ink:#f0efec; --ink-2:#c3c2b7; --ink-3:#9a998f;
   --rule:#2e3237; --grid:#26292d; --hist:#3987e5; --fcst:#d55a95; --band:rgba(213,90,149,.20);
-  --accent:#d55a95; --chip:#23262a; color-scheme:dark } }
+  --accent:#d55a95; --chip:#23262a; --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; color-scheme:dark } }
 :root[data-theme="dark"]{
   --bg:#121417; --panel:#1a1a19; --ink:#f0efec; --ink-2:#c3c2b7; --ink-3:#9a998f;
   --rule:#2e3237; --grid:#26292d; --hist:#3987e5; --fcst:#d55a95; --band:rgba(213,90,149,.20);
-  --accent:#d55a95; --chip:#23262a; color-scheme:dark }
+  --accent:#d55a95; --chip:#23262a; --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; color-scheme:dark }
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5}
 .wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px;display:grid;gap:20px}
@@ -113,6 +114,31 @@ code{font-family:var(--f-mono);font-size:.92em;background:var(--chip);padding:1p
 .tl th:first-child,.tl td:first-child{position:sticky;left:0;background:var(--panel);text-align:left;min-width:150px;max-width:190px;white-space:normal;z-index:1}
 .tl td.c b{font-size:13px}
 .tl tr.evrow td{font-family:var(--f-mono);font-size:11px;color:var(--ink-2)}
+.eyebrow{font-family:var(--f-display);font-size:13px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
+.brief-head{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:flex-end}
+.tk{margin:8px 0 0;padding-left:24px;display:grid;gap:8px;font-size:15.5px;max-width:80ch}
+.tk li::marker{font-family:var(--f-display);font-weight:700;color:var(--accent)}
+.tk b{font-weight:600}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:12px}
+.tile{background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:12px 14px;display:grid;gap:6px;min-width:0;cursor:pointer;text-align:left;color:inherit;font:inherit}
+.tile:hover{border-color:var(--ink-3)}
+.tile .top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.tile .dom{font-family:var(--f-display);font-size:14px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2)}
+.tile .val{display:flex;align-items:flex-end;justify-content:space-between;gap:8px}
+.tile .val .big{font-size:26px;line-height:1}
+.tile .ctx{font-size:13.5px}
+.tile .read{font-size:12.5px;color:var(--ink-3);border-top:1px dashed var(--rule);padding-top:6px}
+.st{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px;border:1.5px solid currentColor;white-space:nowrap}
+.st.crit{color:var(--crit)} .st.serious{color:var(--serious)} .st.calm{color:var(--ink-3)} .st.good{color:var(--good)}
+.tile .spark{width:96px;height:34px}
+.acts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:12px;margin-top:10px}
+.act-col{display:grid;gap:10px;align-content:start}
+.act-col h4{margin:0;font-family:var(--f-display);font-size:16px;letter-spacing:.06em;text-transform:uppercase}
+.act{border:1px solid var(--rule);border-radius:6px;padding:10px 12px;display:grid;gap:4px}
+.act b{font-size:14.5px} .act .why{font-size:12.5px;color:var(--ink-2)}
+.act .why a{cursor:pointer}
+.dl{display:grid;gap:6px;font-size:13.5px}
+.dl div{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid var(--grid);padding-bottom:4px}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:4px;font-size:13.5px}
 @media (prefers-reduced-motion:no-preference){.row{transition:background .12s}}
 </style>
@@ -120,11 +146,12 @@ code{font-family:var(--f-mono);font-size:.92em;background:var(--chip);padding:1p
 <div class="wrap">
   <header class="top">
     <h1>Signpost Board<small>Cyber-physical seam · trends, forecasts and bets · 2006 → safe horizon</small></h1>
-    <div class="stamp">BUILD <span id="buildId">HRZN-20261021-1359Z</span><br>SHIPPED 2026-10-21 13:59 UTC<br><span id="dataAsOf"></span></div>
+    <div class="stamp">BUILD <span id="buildId">HRZN-20261021-1405Z</span><br>SHIPPED 2026-10-21 14:05 UTC<br><span id="dataAsOf"></span></div>
   </header>
 
   <nav class="tabs" role="tablist" aria-label="Sections">
-    <button role="tab" id="t-board" aria-controls="v-board" aria-selected="true" data-view="board">Board</button>
+    <button role="tab" id="t-brief" aria-controls="v-brief" aria-selected="true" data-view="brief">Brief</button>
+    <button role="tab" id="t-board" aria-controls="v-board" aria-selected="false" data-view="board">Board</button>
     <button role="tab" id="t-timeline" aria-controls="v-timeline" aria-selected="false" data-view="timeline">Timeline</button>
     <button role="tab" id="t-alerts" aria-controls="v-alerts" aria-selected="false" data-view="alerts">Alerts <span id="alertBadge" class="num"></span></button>
     <button role="tab" id="t-bets" aria-controls="v-bets" aria-selected="false" data-view="bets">Bets</button>
@@ -133,7 +160,37 @@ code{font-family:var(--f-mono);font-size:.92em;background:var(--chip);padding:1p
   </nav>
 
   <!-- BOARD -->
-  <section id="v-board" role="tabpanel" aria-labelledby="t-board" style="display:grid;gap:16px">
+  <!-- BRIEF -->
+  <section id="v-brief" role="tabpanel" aria-labelledby="t-brief" style="display:grid;gap:16px">
+    <div class="panel brief-head">
+      <div style="min-width:0">
+        <div class="eyebrow">Executive brief</div>
+        <h2 id="bfHeadline" style="font-size:clamp(22px,3.4vw,30px);letter-spacing:.02em"></h2>
+        <p class="muted" id="bfSub" style="margin:4px 0 0"></p>
+      </div>
+      <div class="controls" style="margin-top:0"><button class="btn" id="bfCopy" type="button">Copy brief as text</button></div>
+    </div>
+    <div class="panel"><h3>Top takeaways</h3><ol class="tk" id="bfTake"></ol><p class="tiny" style="margin:6px 0 0">Every number above is computed from the sourced series on this board and updates when the data does.</p></div>
+    <div class="tiles" id="bfTiles"></div>
+    <div class="panel">
+      <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:baseline"><h3 id="ixTitle">Threat growth vs defender capacity</h3><span class="tiny">Index, 2019 = 100 · one axis</span></div>
+      <p id="ixLead" style="margin:6px 0 4px;font-weight:600"></p>
+      <div class="chartbox" id="ixBox"><svg class="chart" id="ixChart" role="img" aria-labelledby="ixTitle"></svg><div class="tip" id="ixTip" hidden></div></div>
+      <div class="legend" id="ixLegend"></div>
+      <p class="tiny" id="ixNote" style="margin:6px 0 0"></p>
+      <details style="margin-top:6px"><summary>Data table</summary><div class="tablewrap" id="ixTable"></div></details>
+    </div>
+    <div class="panel">
+      <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:baseline"><h3>What to do about it</h3><span class="tiny">Recommended actions are analyst judgment, each tied to the data that triggers it</span></div>
+      <div class="acts" id="bfActs"></div>
+    </div>
+    <div class="grid2">
+      <div class="panel"><h3>Changed since your last review</h3><div id="bfDelta" style="margin-top:6px"></div></div>
+      <div class="panel"><h3>Coming due</h3><div id="bfDue" style="margin-top:6px"></div></div>
+    </div>
+  </section>
+
+  <section id="v-board" role="tabpanel" aria-labelledby="t-board" hidden style="display:grid;gap:16px">
     <div class="board" id="board" role="list"></div>
     <div class="detail">
       <div class="panel">
@@ -709,12 +766,114 @@ function renderTimeline(){
   $("#tlEvents").innerHTML=evs.length?`<h3 style="font-size:15px">Events</h3><ol>${evs.map(e=>`<li><span class="num">${e.end?e.date.slice(0,4)+"–"+e.end.slice(0,4):e.date}</span> · ${e.title}. <span class="muted">${e.desc}</span> <a href="${e.source_url}" target="_blank" rel="noopener">Source</a>${e.status==="verified-secondary"?' <span class="tiny">(secondary source)</span>':""}</li>`).join("")}</ol>`:'<p class="tiny">No verified events loaded.</p>';
 }
 
+/* ---------- executive brief ---------- */
+const SV=id=>SERIES.find(s=>s.id===id);
+function info(id){const s=SV(id);if(!s)return null;const fy=window.HRZN.fullYears(s);if(!fy.length)return null;const L=fy[fy.length-1],v=s.values[L],pv=s.values[L-1];const M=model(s);
+  const py=s.partial_year&&s.values[s.partial_year]!=null?s.partial_year:null,ytd=py?s.values[py]:null;let frac=null;
+  if(py&&s.asof){const d=new Date(s.asof+"T00:00:00Z");frac=(d-Date.UTC(py,0,1))/(Date.UTC(py+1,0,1)-Date.UTC(py,0,1))}
+  const vals=fy.map(y=>s.values[y]);return{s,L,v,pv,yoy:pv>0?v/pv-1:null,M,py,ytd,frac,pace:ytd!=null&&frac>0.2&&frac<1?ytd/frac:null,record:vals.length>1&&v>Math.max(...vals.slice(0,-1)),
+   dbl:M.key==="exp"&&M.m&&M.m.b>0?Math.log(2)/M.m.b:null,yc:ytdCheck(s,M),fy}}
+const nf=(v,s)=>fmt(v,s.unit);
+function status(i){const cy=new Date().getUTCFullYear();if(i.L<cy-1&&!i.py)return{cls:"calm",g:"◌",t:"No current data"};
+  const al=ALERTS.filter(a=>a.ref===i.s.id&&["yoy","pace","band_break","accel"].includes(a.rule)&&!(a.rule==="accel"&&a.sev==="low")&&!(a.rule==="pace"&&a.sev==="low"));
+  if(al.some(a=>a.sev==="high"))return{cls:"crit",g:"▲",t:"Accelerating"};if(al.some(a=>a.sev==="medium"))return{cls:"serious",g:"●",t:"Rising fast"};
+  const ch=i.yoy;if(ch==null)return{cls:"calm",g:"–",t:"Unknown"};if(ch>0.02)return{cls:"calm",g:"↗",t:"Growing"};if(ch<-0.02)return{cls:"calm",g:"↘",t:"Declining"};return{cls:"calm",g:"→",t:"Flat"}}
+const TILES=[
+ {id:"cve-published",dom:"Vulnerability volume",read:"More to triage than teams can handle by hand. Prioritize by exploitation evidence."},
+ {id:"kev-added",dom:"Active exploitation",read:"The short list that matters most. Measure time-to-fix on these."},
+ {id:"ransomware-victims",dom:"Extortion",read:"Recovery capability is the control that decides the outcome."},
+ {id:"ics-advisories",dom:"OT exposure",read:"More disclosed weaknesses in industrial products each year."},
+ {id:"ic3-losses",dom:"Fraud losses",read:"Reported losses compound faster than complaints."},
+ {id:"gnss-loss-rate",dom:"Aviation GNSS",read:"Signal loss is common enough to plan and train for."},
+ {id:"robot-installs",dom:"Physical automation",read:"More networked machines on factory floors to secure."},
+ {id:"ai-frontier-compute",dom:"AI capability",kind:"max",read:"Capability is compounding; oversight skills need to keep pace."},
+ {id:"isc2-workforce",dom:"Defender capacity",read:"Headcount is not keeping pace with threat volume."}];
+function tileCtx(i,kind){const s=i.s;if(i.py){let c=`${i.py} so far (to ${s.asof})`;
+   if(kind==="max")return c+(i.ytd>i.v?`: largest model already exceeds ${i.L}’s (${nf(i.v,s)})`:`; ${i.L} peak ${nf(i.v,s)}`);
+   if(i.ytd>=i.v)return c+`: <b>already above all of ${i.L}</b> (${nf(i.v,s)})`;
+   if(i.pace)return c+`: on pace for ~${nf(i.pace,s)} vs ${nf(i.v,s)} in ${i.L}`;return c}
+  let c=`${i.L}`;if(i.yoy!=null)c+=`: ${pct(i.yoy)} vs ${i.L-1}`;if(i.record&&i.fy.length>5)c+=`, <b>highest on record</b>`;if(i.dbl&&i.dbl<12)c+=`; trend doubles every ~${i.dbl.toFixed(1)} yrs`;return c}
+function tileSpark(i){const s=i.s,log=s.scale==="log",P=i.fy.filter(y=>y>=Math.max(2010,i.M.from||0)).map(y=>[y,s.values[y]]);if(i.py)P.push([i.py,i.ytd]);if(P.length<2)return"";
+  const tv=v=>log?Math.log10(Math.max(v,1e-9)):v,xs=P.map(p=>p[0]),vs=P.map(p=>tv(p[1])),x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...vs),y1=Math.max(...vs);
+  const X=x=>2+(x-x0)/((x1-x0)||1)*92,Y=v=>32-(tv(v)-y0)/((y1-y0)||1)*28,full=P.filter(p=>p[0]!==i.py);const d=full.map((p,k)=>(k?"L":"M")+X(p[0]).toFixed(1)+" "+Y(p[1]).toFixed(1)).join("");
+  const area=d+`L${X(full[full.length-1][0]).toFixed(1)} 34L${X(full[0][0]).toFixed(1)} 34Z`;const lp=full[full.length-1];
+  let g=`<svg class="spark" viewBox="0 0 96 34" aria-hidden="true"><path d="${area}" fill="var(--hist)" opacity=".12"/><path d="${d}" fill="none" stroke="var(--hist)" stroke-width="1.6"/><circle cx="${X(lp[0])}" cy="${Y(lp[1])}" r="2.4" fill="var(--hist)"/>`;
+  if(i.py)g+=`<path d="M${X(lp[0])} ${Y(lp[1])}L${X(i.py)} ${Y(i.ytd)}" stroke="var(--hist)" stroke-width="1.4" stroke-dasharray="1 2.5" fill="none"/><circle cx="${X(i.py)}" cy="${Y(i.ytd)}" r="2.6" fill="var(--panel)" stroke="var(--hist)" stroke-width="1.4"/>`;
+  return g+"</svg>"}
+function takeaways(){const T=[],K=info("kev-added"),R=info("ransomware-victims"),C=info("cve-published"),I=info("ics-advisories"),F=info("ic3-losses"),FC=info("ic3-loss-per-complaint"),G=info("gnss-loss-rate"),W=info("isc2-workforce"),RB=info("robot-installs");
+  const ahead=[K,R].filter(x=>x&&x.py&&x.ytd>=x.v);
+  if(ahead.length)T.push({h:"Exploitation and extortion are already ahead of last year.",b:ahead.map(x=>`${x===K?"CISA has added":"ransomware leak sites have posted"} ${nf(x.ytd,x.s)} ${x===K?"known-exploited vulnerabilities":"victims"} in ${x.py} so far, more than in all of ${x.L} (${nf(x.v,x.s)})`).join("; ")+"."});
+  if(C&&C.py){T.push({h:`Disclosed vulnerabilities have ${C.yc&&C.yc.above?"broken":"outgrown"} their trend.`,b:`${nf(C.ytd,C.s)} CVEs published in ${C.py} through ${C.s.asof}, ${(C.ytd/C.v).toFixed(1)}× all of ${C.L}${C.yc&&C.yc.above?`, above the trend’s ${C.py} band (top ${nf(C.yc.f.hi,C.s)})`:""}. The cause has not been established; whatever it is, the volume puts pressure on triage capacity.`})}
+  if(I){let b=`${nf(I.v,I.s)} ICS advisories in ${I.L}${I.record?", the most on record":""}`;if(I.dbl)b+=`, a trend that doubles about every ${I.dbl.toFixed(1)} years`;if(RB&&RB.record)b+=`. Industrial robot installations also hit a record (${nf(RB.v,RB.s)} in ${RB.L})`;T.push({h:"Operational technology exposure keeps compounding.",b:b+"."})}
+  if(F){let b=`Reported losses reached ${nf(F.v,F.s)} in ${F.L} (${pct(F.yoy)})`;if(F.dbl)b+=`, a trend that doubles about every ${F.dbl.toFixed(1)} years`;if(FC)b+=`. Average reported loss per complaint: ${nf(FC.v,FC.s)}`;T.push({h:"Fraud losses are compounding faster than complaints.",b:b+"."})}
+  if(G){const b0=G.s.values[2022];if(b0)T.push({h:"GPS signal loss in airline operations has nearly doubled since 2022.",b:`${G.v} GPS signal-loss events per 1,000 flights in ${G.L} (provisional), up ${Math.round((G.v/b0-1)*100)}% from ${b0} in 2022 (IATA).`})}
+  if(W){const w0=W.s.values[W.L-1];T.push({h:"Defender headcount is growing more slowly than the threat indicators.",b:`ISC2 estimated ${nf(W.v,W.s)} cybersecurity workers worldwide in ${W.L}${w0?`, ${Math.abs(W.v/w0-1)<0.02?"essentially flat vs":"vs"} ${nf(w0,W.s)} in ${W.L-1}`:""}; its 2025 study published no global figure.`})}
+  return T}
+const ACTS=[
+ {h:"Now · next 90 days",items:[
+  {t:"Fix what is being exploited first",d:"Set a remediation deadline for KEV-listed vulnerabilities in your environment and report time-to-fix monthly.",ref:"kev-added"},
+  {t:"Prove you can recover from ransomware",d:"Run a restore test from offline or immutable backups and a one-hour executive tabletop.",ref:"ransomware-victims"},
+  {t:"Close the payment-fraud gap",d:"Require out-of-band verification for any change to payment or banking details.",ref:"ic3-losses"}]},
+ {h:"Next · 6–12 months",items:[
+  {t:"Automate triage, keep a human sign-off",d:"Use automation (including AI) to rank vulnerabilities by exploitation evidence and asset exposure; require documented human approval for changes.",ref:"cve-published"},
+  {t:"Know your OT assets",d:"Build an OT asset inventory and a weekly process that matches new ICS advisories to installed products (ISA/IEC 62443-aligned).",ref:"ics-advisories"},
+  {t:"Plan for GNSS-degraded operations",d:"For aviation teams: procedures, crew awareness and reporting for GPS interference; evaluate resilient navigation options.",ref:"gnss-loss-rate"}]},
+ {h:"Watch · decision triggers",items:"signposts"}];
+function renderActs(){$("#bfActs").innerHTML=ACTS.map(c=>`<div class="act-col"><h4>${c.h}</h4>${c.items==="signposts"?
+   sps.map(s=>`<div class="act"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><b>${s.title}</b><span class="chip ${SPST[s.state]||""}">${s.state[0].toUpperCase()+s.state.slice(1)}</span></div><span class="why">If this arrives, re-plan. ${s.domain}.</span></div>`).slice(0,5).join("")+`<a class="tiny" href="#signposts" data-go="signposts">All signposts →</a>`
+   :c.items.map(a=>{const i=info(a.ref);const st=i?status(i):null;return`<div class="act"><b>${a.t}</b><span>${a.d}</span><span class="why">Trigger: <a data-sid="${a.ref}">${i?i.s.title:a.ref}</a>${st?` · <span class="st ${st.cls}" style="font-size:11px">${st.g} ${st.t}</span>`:""}</span></div>`}).join("")}</div>`).join("");
+  $("#bfActs").querySelectorAll("a[data-sid]").forEach(a=>a.addEventListener("click",()=>openSeries(a.dataset.sid)));
+  $("#bfActs").querySelectorAll("a[data-go]").forEach(a=>a.addEventListener("click",e=>{e.preventDefault();show(a.dataset.go)}))}
+function openSeries(id){sel=id;settings.sel=sel;store.set("hrzn.settings.v1",settings);show("board");renderBoard();renderDetail();$("#dTitle").scrollIntoView({block:"start"})}
+const IX=[{id:"cve-published",c:"var(--s1)",l:"CVEs published"},{id:"ics-advisories",c:"var(--s2)",l:"ICS advisories"},{id:"ic3-losses",c:"var(--s4)",l:"IC3 reported losses"},{id:"isc2-workforce",c:"var(--s3)",l:"Cyber workforce",dash:true}];
+function renderIndex(){const base=2019,lines=IX.map(o=>{const s=SV(o.id);if(!s||!s.values[base])return null;const fy=window.HRZN.fullYears(s).filter(y=>y>=base&&s.values[y]!=null);return Object.assign({},o,{s,P:fy.map(y=>[y,s.values[y]/s.values[base]*100])})}).filter(Boolean);
+  if(!lines.length)return;const box=$("#ixBox"),W=Math.max(320,box.clientWidth||700),H=Math.round(Math.min(340,Math.max(220,W*0.42))),pad={l:44,r:205,t:12,b:26};
+  const narrow=W<560;if(narrow)pad.r=12;const x0=base,x1=Math.max(...lines.flatMap(l=>l.P.map(p=>p[0])));const ymax=Math.max(...lines.flatMap(l=>l.P.map(p=>p[1])));
+  const ticks=niceTicks(0,ymax,5);const yt=ticks[ticks.length-1]<ymax?ticks[ticks.length-1]+(ticks[1]-ticks[0]):ticks[ticks.length-1];
+  const X=x=>pad.l+(x-x0)/((x1-x0)||1)*(W-pad.l-pad.r),Y=v=>pad.t+(1-v/yt)*(H-pad.t-pad.b);let g="";
+  niceTicks(0,yt,5).forEach(v=>{g+=`<line x1="${pad.l}" x2="${W-pad.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--grid)"/><text x="${pad.l-6}" y="${Y(v)+4}" text-anchor="end" font-size="11" fill="var(--ink-3)" font-family="var(--f-mono)">${v}</text>`});
+  g+=`<line x1="${pad.l}" x2="${W-pad.r}" y1="${Y(100)}" y2="${Y(100)}" stroke="var(--ink-3)" stroke-dasharray="3 3"/>`;
+  for(let x=x0;x<=x1;x++)g+=`<text x="${X(x)}" y="${H-7}" text-anchor="middle" font-size="11" fill="var(--ink-3)" font-family="var(--f-mono)">${x}</text>`;
+  const ends=lines.map(l=>{const e=l.P[l.P.length-1];return{l,x:X(e[0]),y:Y(e[1]),v:e[1],yr:e[0]}}).sort((a,b)=>a.y-b.y);for(let k=1;k<ends.length;k++)if(ends[k].y-ends[k-1].y<15)ends[k].ly=ends[k-1].ly!=null?Math.max(ends[k].y,ends[k-1].ly+15):Math.max(ends[k].y,ends[k-1].y+15);
+  lines.forEach(l=>{g+=`<path d="${l.P.map((p,k)=>(k?"L":"M")+X(p[0]).toFixed(1)+" "+Y(p[1]).toFixed(1)).join("")}" fill="none" stroke="${l.c}" stroke-width="2.2"${l.dash?' stroke-dasharray="6 4"':""}/>`;
+   const e=l.P[l.P.length-1];g+=`<circle cx="${X(e[0])}" cy="${Y(e[1])}" r="4" fill="${l.c}" stroke="var(--panel)" stroke-width="2"/>`});
+  if(!narrow)ends.forEach(e=>{const ly=e.ly!=null?e.ly:e.y;if(e.x<X(x1)-1)g+=`<line x1="${e.x+5}" x2="${X(x1)+4}" y1="${e.y}" y2="${ly}" stroke="var(--ink-3)" stroke-dasharray="1 3"/>`;g+=`<text x="${X(x1)+8}" y="${ly+4}" font-size="12" fill="var(--ink)"><tspan font-weight="600">${e.l.l}</tspan> <tspan fill="var(--ink-2)" font-family="var(--f-mono)">×${(e.v/100).toFixed(1)}${e.yr<x1?" ("+e.yr+")":""}</tspan></text>`});
+  g+=`<line id="ixh" y1="${pad.t}" y2="${H-pad.b}" stroke="var(--ink-3)" stroke-dasharray="2 3" visibility="hidden"/><rect id="ixhit" x="${pad.l}" y="${pad.t}" width="${W-pad.l-pad.r}" height="${H-pad.t-pad.b}" fill="transparent"/>`;
+  const svg=$("#ixChart");svg.setAttribute("viewBox",`0 0 ${W} ${H}`);svg.innerHTML=g;const tip=$("#ixTip"),xh=svg.querySelector("#ixh");
+  svg.querySelector("#ixhit").addEventListener("pointermove",ev=>{const r=svg.getBoundingClientRect(),px=(ev.clientX-r.left)*(W/r.width),yr=Math.round(x0+(px-pad.l)/(W-pad.l-pad.r)*(x1-x0));if(yr<x0||yr>x1)return;
+   tip.innerHTML=`<b class="num">${yr}</b>`+lines.map(l=>{const p=l.P.find(q=>q[0]===yr);return`<div><span style="color:${l.c}">━</span> ${l.l}: <span class="num">${p?Math.round(p[1]):"—"}</span>${p?` <span class="tiny">(${nf(l.s.values[yr],l.s)})</span>`:""}</div>`}).join("");
+   tip.hidden=false;xh.setAttribute("x1",X(yr));xh.setAttribute("x2",X(yr));xh.setAttribute("visibility","visible");const bx=box.getBoundingClientRect();let left=ev.clientX-bx.left+12;if(left>bx.width-220)left=ev.clientX-bx.left-220;tip.style.left=left+"px";tip.style.top="8px"});
+  svg.querySelector("#ixhit").addEventListener("pointerleave",()=>{tip.hidden=true;xh.setAttribute("visibility","hidden")});
+  $("#ixLegend").innerHTML=lines.map(l=>`<span><i style="border-top:2px ${l.dash?"dashed":"solid"} ${l.c}"></i>${l.l}</span>`).join("");
+  const mult=l=>{const e=l.P[l.P.length-1];return`${l.l.replace("IC3 reported losses","reported fraud losses")} ×${(e[1]/100).toFixed(1)}${e[0]<x1?` (to ${e[0]})`:""}`};
+  const th=lines.filter(l=>!l.dash),cap=lines.find(l=>l.dash);$("#ixLead").textContent=`Since ${base}: ${th.map(mult).join(", ")}${cap?`. Defender workforce: ${mult(cap).replace("Cyber workforce ","")}`:""}.`;
+  $("#ixNote").textContent="Each series divided by its own 2019 value. Workforce is ISC2’s global estimate (2019 from trade-press coverage; methodology changed across editions). Year-to-date values are excluded.";
+  $("#ixTable").innerHTML=`<table><thead><tr><th>Year</th>${lines.map(l=>`<th class="n">${l.l}</th>`).join("")}</tr></thead><tbody>${Array.from({length:x1-x0+1},(_,k)=>x0+k).map(y=>`<tr><td>${y}</td>${lines.map(l=>{const p=l.P.find(q=>q[0]===y);return`<td class="n">${p?Math.round(p[1]):"—"}</td>`}).join("")}</tr>`).join("")}</tbody></table>`}
+function snapVals(){const o={};for(const s of SERIES){const i=info(s.id);if(i)o[s.id]={L:i.L,v:i.v,py:i.py,ytd:i.ytd}}return o}
+function renderDelta(){let snap=store.get("hrzn.snapshot.v1",null);const now=snapVals(),today=new Date().toISOString().slice(0,10);
+  if(!snap){snap={date:today,vals:now};store.set("hrzn.snapshot.v1",snap);$("#bfDelta").innerHTML=`<p class="tiny">Baseline saved today. Next time you open the brief, changes since ${today} will show here.</p>`;return}
+  const rows=[];for(const s of SERIES){const a=snap.vals[s.id],b=now[s.id];if(!a||!b)continue;if(b.L!==a.L||b.v!==a.v)rows.push([s,`${b.L}: ${nf(b.v,s)}${b.L===a.L?` (was ${nf(a.v,s)})`:" (new year)"}`]);else if(b.ytd!==a.ytd&&b.ytd!=null)rows.push([s,`${b.py} YTD: ${nf(b.ytd,s)}${a.ytd!=null&&a.py===b.py?` (was ${nf(a.ytd,s)})`:""}`])}
+  $("#bfDelta").innerHTML=`<div class="tiny" style="margin-bottom:6px">Since ${snap.date}</div>`+(rows.length?`<div class="dl">${rows.map(([s,t])=>`<div><span>${s.title}</span><span class="num">${t}</span></div>`).join("")}</div>`:`<p class="muted" style="margin:0">No data changes.</p>`)+`<div class="controls"><button class="btn ghost" id="bfReviewed" type="button">Mark reviewed today</button></div>`;
+  $("#bfReviewed").addEventListener("click",()=>{store.set("hrzn.snapshot.v1",{date:today,vals:now});renderDelta();toast("Marked reviewed")})}
+function renderDue(){const open=bets.filter(b=>b.outcome==null).sort((a,b)=>a.due.localeCompare(b.due)).slice(0,4);const nx=["2027-01-04","2027-04-05","2027-07-05","2027-10-04","2028-01-03"].find(d=>d>=new Date().toISOString().slice(0,10));
+  $("#bfDue").innerHTML=`<div class="dl">${nx?`<div><span>Next quarterly signpost review</span><span class="num">${nx}</span></div>`:""}<div><span>Data refresh (KEV, ICS advisories)</span><span class="num">Mondays</span></div>${open.map(b=>`<div><span>${b.claim}</span><span class="num">${b.due}${typeof b.p==="number"?` · ${b.p}%`:" · set odds"}</span></div>`).join("")}</div>`}
+function renderBrief(){const T=takeaways();const hi=ALERTS.filter(a=>a.sev==="high"&&!acks[a.fp]).length;const newest=SERIES.map(s=>s.asof).filter(Boolean).sort().pop();
+  $("#bfHeadline").textContent=T.length?T[0].h:"Signpost brief";
+  $("#bfSub").textContent=`${T.length} takeaways · ${hi} open high alert${hi===1?"":"s"} · newest data ${newest||"—"} · build ${document.getElementById("buildId").textContent}`;
+  $("#bfTake").innerHTML=T.map(x=>`<li><b>${x.h}</b> ${x.b}</li>`).join("");
+  $("#bfTiles").innerHTML=TILES.map(o=>{const i=info(o.id);if(!i)return"";const st=status(i);const big=i.py?i.ytd:i.v;
+   return`<button class="tile" type="button" data-sid="${o.id}"><div class="top"><span class="dom">${o.dom}</span><span class="st ${st.cls}">${st.g} ${st.t}</span></div><div class="val"><span class="big num">${nf(big,i.s)}</span>${tileSpark(i)}</div><div class="ctx">${tileCtx(i,o.kind)}</div><div class="read"><span style="font-weight:600">Read:</span> ${o.read}</div></button>`}).join("");
+  $("#bfTiles").querySelectorAll(".tile").forEach(b=>b.addEventListener("click",()=>openSeries(b.dataset.sid)));
+  renderIndex();renderActs();renderDelta();renderDue()}
+$("#bfCopy").addEventListener("click",()=>{const T=takeaways();const txt=`SIGNPOST BRIEF (${document.getElementById("buildId").textContent})\n\nTOP TAKEAWAYS\n`+T.map((x,k)=>`${k+1}. ${x.h} ${x.b}`).join("\n")+`\n\n${$("#ixLead").textContent}\n\nRECOMMENDED ACTIONS (analyst judgment)\n`+ACTS.filter(c=>c.items!=="signposts").map(c=>c.h.toUpperCase()+"\n"+c.items.map(a=>`- ${a.t}: ${a.d}`).join("\n")).join("\n\n")+`\n\nSources and verification: see the Method tab and VERIFICATION.md.`;
+  const plain=txt.replace(/<[^>]+>/g,"");$("#ioBox").value=plain;try{navigator.clipboard.writeText(plain).then(()=>toast("Brief copied"),()=>toast("Copy blocked: the text is in the JSON box on the Method tab"))}catch(e){toast("The text is in the JSON box on the Method tab")}});
+
 /* ---------- tabs + boot ---------- */
-const views=["board","timeline","alerts","bets","signposts","method"];
-function show(v){if(!views.includes(v))v="board";views.forEach(x=>{$("#v-"+x).hidden=x!==v;$("#t-"+x).setAttribute("aria-selected",x===v)});if(v==="board")renderDetail();if(v==="timeline")renderTimeline()}
+const views=["brief","board","timeline","alerts","bets","signposts","method"];
+function show(v){if(!views.includes(v))v="brief";views.forEach(x=>{$("#v-"+x).hidden=x!==v;$("#t-"+x).setAttribute("aria-selected",x===v)});if(v==="board")renderDetail();if(v==="timeline")renderTimeline();if(v==="brief")renderIndex()}
 document.querySelectorAll("nav.tabs button").forEach(b=>b.addEventListener("click",()=>{show(b.dataset.view);try{history.replaceState(null,"","#"+b.dataset.view)}catch(e){}}));
-function renderAll(){const asof=SERIES.map(s=>s.asof).filter(Boolean).sort().pop();$("#dataAsOf").textContent=asof?"NEWEST DATA "+asof:"";renderBoard();renderDetail();renderBets();renderSP();renderRules();runAlerts();renderTimeline()}
-let rz;addEventListener("resize",()=>{clearTimeout(rz);rz=setTimeout(renderDetail,120)});
+function renderAll(){const asof=SERIES.map(s=>s.asof).filter(Boolean).sort().pop();$("#dataAsOf").textContent=asof?"NEWEST DATA "+asof:"";renderBoard();renderDetail();renderBets();renderSP();renderRules();runAlerts();renderTimeline();renderBrief()}
+let rz;addEventListener("resize",()=>{clearTimeout(rz);rz=setTimeout(()=>{renderDetail();renderIndex()},120)});
 renderAll();show((location.hash||"").slice(1));
 // When hosted (e.g. GitHub Pages), prefer the live data files over the embedded copy.
 // When hosted (GitHub Pages), prefer the live data files over the embedded copy.

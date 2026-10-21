@@ -8,6 +8,7 @@ It works offline (open `index.html`), on GitHub Pages, and on a phone.
 
 | Tab | What it does |
 |---|---|
+| **Brief** | The executive view, and the landing page: computed top takeaways, nine status tiles, an indexed threat-vs-capacity chart, Now / Next / Watch actions (labelled as judgment), changes since your last review, and what's coming due. *Copy brief as text* produces an email-ready summary. |
 | **Board** | One row per signpost series: latest value, 1-yr change, 5-yr CAGR, best-fit trend, safe horizon, sparkline. Pick a row for the full chart, an 80% prediction band and a TAF-style outlook. |
 | **Timeline** | Hazard timeline: every series × every year, marking where a data rule would have fired (current rules, replayed on the data available at the time), plus verified reference events. |
 | **Alerts** | SIEM-style rules over the data, your bets and your signposts: year-over-year swings, year-to-date pace, trend breaks, acceleration, stale data, bets ready to resolve, you-vs-model gaps, signposts arrived. Severity, acknowledge / re-open, and an editable rules table. |
