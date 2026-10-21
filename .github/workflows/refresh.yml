@@ -1,0 +1,43 @@
+name: Refresh live data and alerts
+on:
+  schedule:
+    - cron: "17 13 * * 1"   # Mondays 13:17 UTC
+  push:
+    paths: ["data/series.json", "data/rules.json", "data/events.json", "src/**"]
+  workflow_dispatch: {}
+permissions:
+  contents: write
+  issues: write
+concurrency:
+  group: refresh
+  cancel-in-progress: false
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      # Actions pinned to full commit SHAs (tags noted) so a moved tag can't change what runs.
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: "20"
+      - name: Pull CISA KEV feed
+        run: python3 scripts/update_kev.py
+      - name: Pull ICS Advisory Project dataset
+        run: python3 scripts/update_ics.py
+      - name: Evaluate alerts (opens an Issue per new HIGH alert)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/alerts.mjs
+      - name: Rebuild page
+        run: python3 build.py
+      - name: Commit if changed
+        run: |
+          git config user.name "hrzn-bot"
+          git config user.email "hrzn-bot@users.noreply.github.com"
+          git add data/live data/alerts.json index.html dist/artifact.html
+          git diff --cached --quiet || git commit -m "Refresh data and alerts ($(date -u +%Y-%m-%d))"
+          git push

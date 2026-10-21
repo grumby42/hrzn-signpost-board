@@ -1,0 +1,83 @@
+[
+ {
+  "id": "faa-cyber-rule",
+  "title": "FAA aircraft network-security rule finalized",
+  "domain": "Aviation \u00b7 regulation",
+  "state": "watching",
+  "what": "The FAA finalizes binding requirements for aircraft network and information-security protection in type certification. EASA already amended its certification specifications for aircraft cybersecurity (ED Decision 2020/006/R).",
+  "link": "https://www.easa.europa.eu/document-library/agency-decisions/ed-decision-2020006r",
+  "reviewed": "2026-10-20"
+ },
+ {
+  "id": "ai-act-highrisk",
+  "title": "High-risk AI obligations actually enforced",
+  "domain": "Regulation",
+  "state": "watching",
+  "what": "EU AI Act high-risk system obligations (including AI used as a safety component of critical infrastructure) apply and the first enforcement actions appear. Dates may shift; track the official timeline.",
+  "link": "https://artificialintelligenceact.eu/",
+  "reviewed": "2026-10-20"
+ },
+ {
+  "id": "agent-ot-write",
+  "title": "AI agents with write access to OT in production",
+  "domain": "Capability \u00b7 OT",
+  "state": "watching",
+  "what": "A major utility, manufacturer or airline publicly runs an AI agent that can change setpoints, schedules or configurations without a human approving each action.",
+  "link": "",
+  "reviewed": "2026-10-20"
+ },
+ {
+  "id": "sdl-scale",
+  "title": "Self-driving labs at national scale",
+  "domain": "Autonomy \u00b7 science",
+  "state": "watching",
+  "what": "Autonomous labs move from single-instrument demos to facility-wide operations producing published results with minimal human handling.",
+  "link": "https://www.anl.gov/autonomous-discovery",
+  "reviewed": "2026-10-20"
+ },
+ {
+  "id": "robot-fm",
+  "title": "General-purpose robots in commercial work",
+  "domain": "Autonomy \u00b7 physical",
+  "state": "watching",
+  "what": "Robot foundation models running real shifts in warehouses or factories at more than pilot scale, with published reliability numbers.",
+  "link": "https://ifr.org/",
+  "reviewed": "2026-10-20"
+ },
+ {
+  "id": "ai-vuln-flood",
+  "title": "AI-found vulnerabilities outrun patching",
+  "domain": "Cyber \u00b7 defense",
+  "state": "watching",
+  "what": "CVE and KEV growth accelerates beyond its trend line and defenders report remediation backlogs growing, with AI-assisted discovery named as a cause. Watch the CVE and KEV rows on the Board.",
+  "link": "https://www.cisa.gov/known-exploited-vulnerabilities-catalog",
+  "reviewed": "2026-10-20"
+ },
+ {
+  "id": "jobs-ai-sec",
+  "title": "Defender job postings require AI-security skills",
+  "domain": "Job market",
+  "state": "watching",
+  "what": "SOC, IR and OT security postings routinely list AI system security, agent oversight or model red-teaming as requirements, not nice-to-haves.",
+  "link": "https://www.cyberseek.org/",
+  "reviewed": "2026-10-20"
+ },
+ {
+  "id": "formal-cert",
+  "title": "Machine-checked proof accepted in certification",
+  "domain": "Assurance",
+  "state": "watching",
+  "what": "A regulator accepts formal verification (Lean, TLA+, Coq or similar) as primary evidence for a safety- or security-critical certification, beyond the existing DO-333 formal-methods supplement used in some avionics programs.",
+  "link": "https://www.easa.europa.eu/en/domains/research-innovation/ai",
+  "reviewed": "2026-10-20"
+ },
+ {
+  "id": "gnss-civil",
+  "title": "GNSS interference becomes routine for civil aviation",
+  "domain": "Aviation \u00b7 cyber-physical",
+  "state": "watching",
+  "what": "Jamming and spoofing reports keep rising and regulators mandate procedures or equipment for resilient navigation on routine flights.",
+  "link": "https://www.easa.europa.eu/",
+  "reviewed": "2026-10-20"
+ }
+]

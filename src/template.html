@@ -1,0 +1,481 @@
+<title>HRZN Signpost Board</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="hrzn-build" content="__BUILD_ID__">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Public+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: a flight-information board. Ticker rows (one per signpost series) on top,
+   the selected series' chart + TAF-style outlook below; tabs for Bets, Signposts, Method. */
+:root{
+  --bg:#f3f5f7; --panel:#ffffff; --ink:#111417; --ink-2:#4a525b; --ink-3:#6b737c;
+  --rule:#d9dee3; --grid:#e8ebee; --hist:#2a78d6; --fcst:#b0306f; --band:rgba(176,48,111,.14);
+  --accent:#b0306f; --chip:#eef1f4;
+  --good:#0ca30c; --warn:#fab219; --serious:#ec835a; --crit:#d03b3b;
+  --f-display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,"Cascadia Mono",Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#121417; --panel:#1a1a19; --ink:#f0efec; --ink-2:#c3c2b7; --ink-3:#9a998f;
+  --rule:#2e3237; --grid:#26292d; --hist:#3987e5; --fcst:#d55a95; --band:rgba(213,90,149,.20);
+  --accent:#d55a95; --chip:#23262a; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#121417; --panel:#1a1a19; --ink:#f0efec; --ink-2:#c3c2b7; --ink-3:#9a998f;
+  --rule:#2e3237; --grid:#26292d; --hist:#3987e5; --fcst:#d55a95; --band:rgba(213,90,149,.20);
+  --accent:#d55a95; --chip:#23262a; color-scheme:dark }
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px;display:grid;gap:20px}
+header.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px;border-bottom:2px solid var(--ink);padding-bottom:10px}
+h1{font-family:var(--f-display);font-weight:700;font-size:clamp(28px,5vw,42px);letter-spacing:.02em;margin:0;line-height:1;text-transform:uppercase}
+h1 small{display:block;font-family:var(--f-body);font-size:14px;font-weight:500;letter-spacing:0;text-transform:none;color:var(--ink-2);margin-top:6px}
+.stamp{font-family:var(--f-mono);font-size:12px;color:var(--ink-3);text-align:right;line-height:1.6}
+@media (max-width:560px){.stamp{text-align:left}}
+h2{font-family:var(--f-display);font-weight:600;font-size:22px;letter-spacing:.04em;text-transform:uppercase;margin:0;text-wrap:balance}
+h3{font-family:var(--f-display);font-weight:600;font-size:18px;letter-spacing:.03em;margin:0}
+.muted{color:var(--ink-2)} .tiny{font-size:12.5px;color:var(--ink-3)}
+a{color:var(--accent)}
+nav.tabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1px solid var(--rule)}
+nav.tabs button{font-family:var(--f-display);font-size:17px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;background:none;border:0;border-bottom:3px solid transparent;color:var(--ink-2);padding:8px 12px;cursor:pointer}
+nav.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,.row:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.panel{background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:16px;min-width:0}
+/* Board */
+.board{display:grid;gap:0;border:1px solid var(--rule);border-radius:6px;background:var(--panel);overflow:hidden}
+.row{display:grid;grid-template-columns:minmax(0,1.6fr) 112px minmax(0,1fr) minmax(0,1fr) 84px;gap:12px;align-items:center;padding:10px 14px;border-top:1px solid var(--rule);cursor:pointer;background:none;text-align:left;color:inherit;font:inherit;width:100%;border-left:0;border-right:0;border-bottom:0}
+.row:first-child{border-top:0}
+.row:hover{background:var(--chip)}
+.row[aria-pressed="true"]{background:var(--chip);box-shadow:inset 3px 0 0 var(--accent)}
+.row .name{font-weight:600;min-width:0}
+.row .name .tiny{display:block;font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.big{font-family:var(--f-mono);font-size:17px;font-weight:500}
+.delta{font-family:var(--f-mono);font-size:13px}
+.hdr{font-family:var(--f-display);font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);cursor:default;background:var(--bg)}
+.hdr:hover{background:var(--bg)}
+.spark{width:84px;height:30px}
+@media (max-width:720px){ .row{grid-template-columns:minmax(0,1fr) auto 84px} .row .c3,.row .c4{display:none} }
+/* Detail */
+.detail{display:grid;grid-template-columns:minmax(0,2.2fr) minmax(0,1fr);gap:16px}
+@media (max-width:860px){.detail{grid-template-columns:minmax(0,1fr)}}
+.chartbox{position:relative;min-width:0}
+svg.chart{width:100%;height:auto;display:block}
+.tip{position:absolute;pointer-events:none;background:var(--panel);border:1px solid var(--rule);border-radius:4px;padding:6px 8px;font-size:12.5px;box-shadow:0 2px 8px rgba(0,0,0,.12);min-width:150px}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12.5px;color:var(--ink-2);margin-top:6px}
+.legend i{display:inline-block;width:18px;height:0;vertical-align:middle;margin-right:6px;border-top:2px solid var(--hist)}
+.legend i.f{border-top:2px dashed var(--fcst)} .legend i.b{height:10px;border:0;background:var(--band)}
+.taf{font-family:var(--f-mono);font-size:13px;background:var(--chip);border-radius:4px;padding:10px 12px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:13.5px}
+.kv dt{color:var(--ink-3)} .kv dd{margin:0;font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:end;margin-top:12px}
+label.ctl{display:grid;gap:3px;font-size:12px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em}
+select,input,textarea{font:inherit;font-size:14px;color:var(--ink);background:var(--panel);border:1px solid var(--rule);border-radius:4px;padding:6px 8px;min-width:0}
+textarea{width:100%;font-family:var(--f-mono);font-size:12.5px}
+.btn{font-family:var(--f-body);font-weight:600;font-size:13.5px;border:1px solid var(--ink);background:var(--ink);color:var(--bg);border-radius:4px;padding:7px 12px;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--rule)}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--chip);white-space:nowrap}
+.chip::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--ink-3)}
+.chip.good::before{background:var(--good)} .chip.warn::before{background:var(--warn)} .chip.serious::before{background:var(--serious)} .chip.crit::before{background:var(--crit)}
+.note{border-left:3px solid var(--rule);padding:4px 10px;font-size:13px;color:var(--ink-2)}
+details summary{cursor:pointer;font-size:13px;color:var(--ink-2)}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-family:var(--f-display);font-size:13px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+td.n,th.n{text-align:right;font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:16px}
+.score{display:flex;flex-wrap:wrap;gap:24px;align-items:baseline}
+.score .big{font-size:28px}
+.prose{max-width:68ch}
+.prose p,.prose li{margin:.4em 0}
+code{font-family:var(--f-mono);font-size:.92em;background:var(--chip);padding:1px 4px;border-radius:3px}
+.sp{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 12px;padding:12px 0;border-top:1px solid var(--rule)}
+.sp:first-child{border-top:0}
+.al{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:4px 12px;padding:10px 0;border-top:1px solid var(--rule);align-items:start}
+.al:first-child{border-top:0}
+.al .t{font-weight:600} .al .d{grid-column:2;font-size:13.5px;color:var(--ink-2)}
+.al.acked{opacity:.55}
+.sev{font-family:var(--f-display);font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:3px;border:1.5px solid currentColor;white-space:nowrap}
+.sev.high{color:var(--crit)} .sev.medium{color:var(--serious)} .sev.low{color:var(--ink-3)}
+#ruleTable input[type=number]{width:84px}
+.pgrid{display:flex;flex-wrap:wrap;gap:8px}
+.evlist ol{margin:4px 0 0;padding-left:22px;font-size:13.5px;display:grid;gap:4px}
+.tl{border-collapse:separate;border-spacing:0;font-size:12.5px}
+.tl th,.tl td{border-bottom:1px solid var(--grid);padding:5px 4px;text-align:center;white-space:nowrap}
+.tl th:first-child,.tl td:first-child{position:sticky;left:0;background:var(--panel);text-align:left;min-width:150px;max-width:190px;white-space:normal;z-index:1}
+.tl td.c b{font-size:13px}
+.tl tr.evrow td{font-family:var(--f-mono);font-size:11px;color:var(--ink-2)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:4px;font-size:13.5px}
+@media (prefers-reduced-motion:no-preference){.row{transition:background .12s}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <h1>Signpost Board<small>Cyber-physical seam · trends, forecasts and bets · 2006 → safe horizon</small></h1>
+    <div class="stamp">BUILD <span id="buildId">__BUILD_ID__</span><br>SHIPPED __BUILD_UTC__<br><span id="dataAsOf"></span></div>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="Sections">
+    <button role="tab" id="t-board" aria-controls="v-board" aria-selected="true" data-view="board">Board</button>
+    <button role="tab" id="t-timeline" aria-controls="v-timeline" aria-selected="false" data-view="timeline">Timeline</button>
+    <button role="tab" id="t-alerts" aria-controls="v-alerts" aria-selected="false" data-view="alerts">Alerts <span id="alertBadge" class="num"></span></button>
+    <button role="tab" id="t-bets" aria-controls="v-bets" aria-selected="false" data-view="bets">Bets</button>
+    <button role="tab" id="t-signposts" aria-controls="v-signposts" aria-selected="false" data-view="signposts">Signposts</button>
+    <button role="tab" id="t-method" aria-controls="v-method" aria-selected="false" data-view="method">Method</button>
+  </nav>
+
+  <!-- BOARD -->
+  <section id="v-board" role="tabpanel" aria-labelledby="t-board" style="display:grid;gap:16px">
+    <div class="board" id="board" role="list"></div>
+    <div class="detail">
+      <div class="panel">
+        <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:baseline">
+          <h2 id="dTitle"></h2><span class="tiny" id="dUnit"></span>
+        </div>
+        <div class="chartbox" id="chartbox"><svg class="chart" id="chart" role="img" aria-labelledby="dTitle"></svg><div class="tip" id="tip" hidden></div></div>
+        <div class="legend"><span><i></i>Reported</span><span><i style="border-top-style:dotted"></i>Year to date (hollow, not fitted)</span><span><i class="f"></i>Forecast median (the magenta line)</span><span><i class="b"></i>80% prediction band</span><span><b style="color:var(--crit)">▼</b> a rule would have fired that year (history)</span><span><b>①</b> event (see list)</span></div>
+        <div class="controls">
+          <label class="ctl" for="mModel">Model<select id="mModel"><option value="auto">Auto (best fit)</option><option value="linear">Linear</option><option value="exp">Exponential</option><option value="logistic">Logistic (S-curve)</option></select></label>
+          <label class="ctl" for="mFrom">Fit from<select id="mFrom"></select></label>
+          <label class="ctl" for="mScale">Y scale<select id="mScale"><option value="lin">Linear</option><option value="log">Log</option></select></label>
+        </div>
+        <div class="evlist" id="dEvents"></div>
+        <details style="margin-top:8px"><summary>Rule history for this series</summary><div id="dHist" style="margin-top:8px"></div></details>
+        <details style="margin-top:8px"><summary>Data table</summary><div class="tablewrap" id="dTable"></div></details>
+      </div>
+      <div class="panel" style="display:grid;gap:14px;align-content:start">
+        <div><h3>Outlook</h3><div class="taf" id="dTaf"></div></div>
+        <dl class="kv" id="dKv"></dl>
+        <div class="note" id="dDef"></div>
+        <div class="tiny" id="dSrc"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TIMELINE -->
+  <section id="v-timeline" role="tabpanel" aria-labelledby="t-timeline" hidden style="display:grid;gap:16px">
+    <div class="panel" style="display:grid;gap:10px">
+      <h2>Hazard timeline</h2>
+      <p class="muted prose" style="margin:0">Every series, every year. A mark means a data rule would have fired with the data available at the end of that year (current rules, replayed). Columns where many rows light up at once are the years the landscape shifted. Numbered events are verified reference points, not causes.</p>
+      <div class="legend"><span><b style="color:var(--crit)">▲</b> High</span><span><b style="color:var(--serious)">●</b> Medium</span><span><b style="color:var(--ink-3)">○</b> Low</span><span><b>◇</b> live alert this year (year to date)</span></div>
+      <div class="tablewrap" id="tlWrap"></div>
+      <div class="evlist" id="tlEvents"></div>
+    </div>
+  </section>
+
+  <!-- ALERTS -->
+  <section id="v-alerts" role="tabpanel" aria-labelledby="t-alerts" hidden style="display:grid;gap:16px">
+    <div class="panel score" id="alertSummary"></div>
+    <div class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><h3>Open alerts</h3><label class="tiny" for="showAcked"><input type="checkbox" id="showAcked"> Show acknowledged</label></div>
+      <div id="alertList" style="margin-top:8px"></div>
+    </div>
+    <div class="panel"><details><summary>Alert history (this browser)</summary><p class="tiny">When each alert first appeared, when you acknowledged it, and when the data stopped triggering it. Included in Copy JSON.</p><div class="tablewrap" id="alertLog"></div></details></div>
+    <div class="panel" style="display:grid;gap:10px">
+      <h3>Rules</h3>
+      <p class="tiny prose" style="margin:0">Edit thresholds here; they apply in this browser right away. To make GitHub's weekly check (and its Issue emails) use them too, press <b>Copy rules JSON</b> and paste it over <code>data/rules.json</code> in the repo.</p>
+      <div class="tablewrap"><table id="ruleTable"><thead><tr><th>On</th><th>Rule</th><th>Settings</th></tr></thead><tbody></tbody></table></div>
+      <div class="controls" style="margin-top:0"><button class="btn" id="copyRules" type="button">Copy rules JSON</button><button class="btn ghost" id="resetRules" type="button">Reset rules</button></div>
+    </div>
+  </section>
+
+  <!-- BETS -->
+  <section id="v-bets" role="tabpanel" aria-labelledby="t-bets" hidden style="display:grid;gap:16px">
+    <div class="panel score" id="betScore"></div>
+    <div class="panel">
+      <div class="tablewrap"><table id="betTable"><thead><tr><th>Bet</th><th>Resolve by</th><th class="n">Mine</th><th class="n">Model</th><th>Status</th><th></th></tr></thead><tbody></tbody></table></div>
+    </div>
+    <div class="panel">
+      <h3>New bet</h3>
+      <form id="betForm" style="display:grid;gap:10px;margin-top:8px">
+        <label class="ctl" for="bClaim">Claim (specific enough that anyone could resolve it)<input id="bClaim" required></label>
+        <div class="controls" style="margin-top:0">
+          <label class="ctl" for="bKind">Type<select id="bKind"><option value="event">Event</option><option value="series">Series threshold</option></select></label>
+          <label class="ctl" for="bSeries">Series<select id="bSeries"></select></label>
+          <label class="ctl" for="bYear">Year<input id="bYear" type="number" min="2006" max="2040" style="width:90px"></label>
+          <label class="ctl" for="bThr">At least<input id="bThr" type="number" step="any" style="width:140px"></label>
+          <label class="ctl" for="bDue">Resolve by<input id="bDue" type="date" required></label>
+          <label class="ctl" for="bP">My probability %<input id="bP" type="number" min="1" max="99" style="width:90px"></label>
+          <button class="btn" type="submit">Add bet</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- SIGNPOSTS -->
+  <section id="v-signposts" role="tabpanel" aria-labelledby="t-signposts" hidden style="display:grid;gap:16px">
+    <div class="panel"><div id="spList"></div></div>
+    <div class="panel" style="display:grid;gap:10px">
+      <h3>Quarterly signpost review</h3>
+      <p class="muted prose" style="margin:0">Run this at each SIGNPOST REVIEW on your calendar. Notes stay in this browser; use Save / Load to move them.</p>
+      <ol class="prose" style="margin:0;padding-left:20px">
+        <li><b>Job market:</b> what are IR / OT / AI-security postings asking for that they weren't last quarter?</li>
+        <li><b>Regulation:</b> any movement on aviation cyber rules, AI Act obligations, AI assurance standards?</li>
+        <li><b>Capability:</b> what task did AI take over this quarter? Does it make a planned skill obsolete, or make verifying it more valuable?</li>
+        <li><b>Personal:</b> income, time, energy. Is the pace sustainable?</li>
+        <li><b>Prune / add:</b> cut one planned item that no longer earns its place; add one that does.</li>
+      </ol>
+      <label class="ctl" for="revNotes">Review notes<textarea id="revNotes" rows="6" placeholder="2027-Q1: …"></textarea></label>
+    </div>
+  </section>
+
+  <!-- METHOD -->
+  <section id="v-method" role="tabpanel" aria-labelledby="t-method" hidden style="display:grid;gap:16px">
+    <div class="panel prose">
+      <h2>How the forecasts work</h2>
+      <p>Each series is fitted three ways over the years you choose, then the best fit is picked by AICc on log-scale residuals (fewer parameters win ties).</p>
+      <ul>
+        <li><b>Linear:</b> <code>y = a + b·t</code>. Fits steady additions (the same number more each year).</li>
+        <li><b>Exponential:</b> <code>ln y = a + b·t</code>, so <code>y = e^a·e^(b·t)</code>. Fits compounding growth. Doubling time = <code>ln 2 / b</code>.</li>
+        <li><b>Logistic (S-curve):</b> <code>y = K / (1 + e^(−r(t − t₀)))</code>. Fits growth that saturates at a ceiling <code>K</code>. Many real exponentials turn into this eventually; the hard part is that the data rarely shows <code>K</code> until you're past the midpoint.</li>
+      </ul>
+      <p><b>The band.</b> The shaded area is an 80% prediction interval from the fit's residuals, widened with distance from the data (<code>±1.28·s·√(1 + 1/n + (t−t̄)²/Sₜₜ)</code>). It only reflects how noisy the past was. It does not know about regime changes, new reporting rules, or the next WannaCry.</p>
+      <p><b>Provenance.</b> Every reported value comes from the source named under its chart, and every series was re-checked against its sources by an independent pass on 2026-10-20 (see VERIFICATION.md in the repository). Values that could not be verified are left blank and never estimated by this board. Some values are the source's own estimates or are read from a source's chart; their notes say so. Derived series are computed from verified series and say so. Analyst notes are interpretation and are labeled as such. Event dates are verified; one relies on secondary reporting and is marked.</p>
+      <p><b>The safe horizon.</b> Forecasts stop at <code>min(5, ⌊n/3⌋)</code> years past the last full year of data, where <code>n</code> is the number of years fitted. Past that, the board shows nothing rather than false precision.</p>
+      <p><b>Bets and calibration.</b> A bet is a probability you commit to before the answer is known. Resolved bets are scored with the Brier score, <code>mean((p − outcome)²)</code>: 0 is perfect, 0.25 is what always saying 50% earns. For series-threshold bets the board also shows the model's own probability, so you can see where your judgment disagrees with the trend line, and later, who was right.</p>
+      <p><b>Reading it like a TAF.</b> The outlook box borrows the aviation terminal forecast format: a validity window, a most-likely value, and a probability group. Treat it the way you'd treat a TAF issued for next year: useful for planning, never a go/no-go by itself.</p>
+    </div>
+    <div class="panel" style="display:grid;gap:10px">
+      <h3>Save / load your bets, signposts and notes</h3>
+      <p class="tiny" style="margin:0">Your edits live in this browser only. Copy the JSON to back it up or move it to another device; paste it back and press Load.</p>
+      <div class="controls" style="margin-top:0"><button class="btn" id="exportBtn" type="button">Copy JSON</button><button class="btn ghost" id="dlBtn" type="button">Download file</button><button class="btn ghost" id="importBtn" type="button">Load pasted JSON</button><button class="btn ghost" id="resetBtn" type="button">Reset to defaults</button></div>
+      <label class="ctl" for="ioBox">JSON<textarea id="ioBox" rows="6"></textarea></label>
+    </div>
+  </section>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script id="series-data" type="application/json">/*__SERIES__*/</script>
+<script id="bets-data" type="application/json">/*__BETS__*/</script>
+<script id="signposts-data" type="application/json">/*__SIGNPOSTS__*/</script>
+<script id="rules-data" type="application/json">/*__RULES__*/</script>
+<script id="live-data" type="application/json">/*__LIVE__*/</script>
+<script id="events-data" type="application/json">/*__EVENTS__*/</script>
+<script>/*__ENGINE__*/</script>
+<script>
+(function(){
+"use strict";
+const $=s=>document.querySelector(s);
+const J=id=>JSON.parse(document.getElementById(id).textContent);
+let SERIES=J("series-data"), DEF_BETS=J("bets-data"), DEF_SP=J("signposts-data"), EVENTS=J("events-data");
+window.HRZN.mergeLive(SERIES,J("live-data"));window.HRZN.derive(SERIES);
+const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+let bets=store.get("hrzn.bets.v1",null)||DEF_BETS.map(b=>({...b}));
+let sps=store.get("hrzn.signposts.v1",null)||DEF_SP.map(s=>({...s}));
+let settings=store.get("hrzn.settings.v1",{});
+const DEF_RULES=J("rules-data");
+let rules=store.get("hrzn.rules.v1",null)||JSON.parse(JSON.stringify(DEF_RULES));
+let acks=store.get("hrzn.acks.v1",{});
+let alog=store.get("hrzn.alertlog.v1",[]);
+let sel=settings.sel||(SERIES[0]&&SERIES[0].id);
+const Z80=1.2816;
+
+/* ---------- engine (src/engine.js) ---------- */
+const {predict,probAtLeast,years,modelFor}=window.HRZN;
+function model(s){return modelFor(s,(settings.m&&settings.m[s.id])||{})}
+function fmt(v,u,short){if(v===null||v===undefined||!isFinite(v))return"—";const a=Math.abs(v);
+  if(u==="pct")return v.toFixed(2)+"%";
+  if(u==="FLOP"){const e=Math.floor(Math.log10(a));return(v/Math.pow(10,e)).toFixed(1)+"e"+e}
+  const pre=u==="USD"?"$":"";let s;
+  if(a>=1e12)s=(v/1e12).toFixed(2)+"T";else if(a>=1e9)s=(v/1e9).toFixed(a>=1e10?1:2)+"B";else if(a>=1e6)s=(v/1e6).toFixed(a>=1e7?1:2)+"M";else if(a>=1e4)s=(v/1e3).toFixed(1)+"K";else s=Math.round(v).toLocaleString();
+  return pre+s}
+const pct=x=>(x>=0?"+":"")+(x*100).toFixed(x>=1?0:1)+"%";
+
+/* ---------- history + events helpers ---------- */
+const SEVC={high:"var(--crit)",medium:"var(--serious)",low:"var(--ink-3)"};
+const SEVLAB={high:"\u25B2 High",medium:"\u25CF Medium",low:"\u25CB Low"};
+const RULE_NAME=id=>((rules.rules||[]).find(r=>r.id===id)||{}).name||id;
+const _hc=new Map();
+function histAlerts(s){const k=s.id+"|"+JSON.stringify(rules)+"|"+JSON.stringify((settings.m||{})[s.id]||{})+"|"+JSON.stringify(s.values);if(!_hc.has(k))_hc.set(k,window.HRZN.historyAlerts(s,rules,{settings,fmt:(v,ss)=>fmt(v,ss&&ss.unit)}));return _hc.get(k)}
+function chartEvents(s,x0,x1){return EVENTS.filter(e=>e.status!=="unverified"&&((e.series||[]).includes(s.id)||(e.series||[]).includes("*"))).map(e=>{const d=new Date(e.date+"T00:00:00Z"),y=d.getUTCFullYear(),f=(d-Date.UTC(y,0,1))/(Date.UTC(y+1,0,1)-Date.UTC(y,0,1));const r=Object.assign({},e,{x:y-0.5+f});if(e.end){const d2=new Date(e.end+"T00:00:00Z"),y2=d2.getUTCFullYear();r.x2=y2-0.5+(d2-Date.UTC(y2,0,1))/(Date.UTC(y2+1,0,1)-Date.UTC(y2,0,1))}return r}).filter(e=>(e.x2||e.x)>=x0-0.5&&e.x<=x1+0.5).sort((a,b)=>a.date.localeCompare(b.date))}
+
+/* ---------- board ---------- */
+function sparkSVG(s,M){const all=[...M.P];if(!all.length)return"";const fc=[];if(M.m)for(let h=1;h<=M.H;h++)fc.push([M.last+h,predict(M.m,M.last+h).p50]);
+  const xs=[...all,...fc].map(p=>p[0]),log=s.scale==="log";const tv=v=>log?Math.log10(Math.max(v,1e-9)):v;const vs=[...all,...fc].map(p=>tv(p[1]));
+  const x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...vs),y1=Math.max(...vs);const X=x=>2+(x-x0)/(x1-x0||1)*80,Y=v=>28-(tv(v)-y0)/(y1-y0||1)*24;
+  const path=a=>a.map((p,i)=>(i?"L":"M")+X(p[0]).toFixed(1)+" "+Y(p[1]).toFixed(1)).join("");const lp=all[all.length-1];
+  return`<svg class="spark" viewBox="0 0 84 30" aria-hidden="true"><path d="${path(all)}" fill="none" stroke="var(--hist)" stroke-width="1.5"/>${fc.length?`<path d="${path([lp,...fc])}" fill="none" stroke="var(--fcst)" stroke-width="1.5" stroke-dasharray="3 2"/>`:""}<circle cx="${X(lp[0])}" cy="${Y(lp[1])}" r="2.4" fill="var(--hist)"/></svg>`}
+function renderBoard(){
+  const b=$("#board");let h=`<div class="row hdr" role="presentation"><span>Signpost</span><span>Latest</span><span class="c3">1-yr / 5-yr CAGR</span><span class="c4">Trend · horizon</span><span>Shape</span></div>`;
+  for(const s of SERIES){const M=model(s);const P=M.P;const lv=P.length?P[P.length-1]:null;const pv=P.length>1?P[P.length-2]:null;
+    const p5=P.find(p=>lv&&p[0]===lv[0]-5);const yoy=lv&&pv&&pv[1]?lv[1]/pv[1]-1:null;const cagr=lv&&p5&&p5[1]>0?Math.pow(lv[1]/p5[1],1/5)-1:null;
+    const lab={linear:"Linear",exp:"Exponential",logistic:"S-curve"}[M.key]||"—";
+    h+=`<button class="row" role="listitem" aria-pressed="${s.id===sel}" data-id="${s.id}"><span class="name">${s.title}<span class="tiny">${s.domain} · ${s.source_name}</span></span>
+      <span><span class="big num">${lv?fmt(lv[1],s.unit):"—"}</span><span class="tiny" style="display:block">${lv?lv[0]:""}${s.partial_year&&s.values[s.partial_year]!=null?" · "+s.partial_year+" YTD "+fmt(s.values[s.partial_year],s.unit):""}</span></span>
+      <span class="c3 delta">${yoy!==null?pct(yoy):"—"} <span class="tiny">/</span> ${cagr!==null?pct(cagr):"—"}</span>
+      <span class="c4 delta">${lab}${M.key==="exp"&&M.m.b>0?" · ×2 in "+(Math.log(2)/M.m.b).toFixed(1)+"y":""}<span class="tiny" style="display:block">to ${M.last?M.last+M.H:"—"}</span></span>
+      ${sparkSVG(s,M)}</button>`}
+  b.innerHTML=h;b.querySelectorAll("button.row").forEach(el=>el.addEventListener("click",()=>{sel=el.dataset.id;settings.sel=sel;store.set("hrzn.settings.v1",settings);renderBoard();renderDetail();if(innerWidth<860)$("#dTitle").scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"})}));
+}
+
+/* ---------- detail chart ---------- */
+function niceTicks(lo,hi,n){const span=hi-lo||1;const step0=span/n;const mag=Math.pow(10,Math.floor(Math.log10(step0)));const err=step0/mag;const step=(err>=7.5?10:err>=3.5?5:err>=1.5?2:1)*mag;const t=[];for(let v=Math.ceil(lo/step)*step;v<=hi+1e-9;v+=step)t.push(v);return t}
+function renderDetail(){
+  const s=SERIES.find(x=>x.id===sel)||SERIES[0];if(!s)return;const M=model(s);
+  $("#dTitle").textContent=s.title;$("#dUnit").textContent=s.unit_label||s.unit;
+  const ys=years(s);const fromSel=$("#mFrom");fromSel.innerHTML=ys.filter(y=>y<=(M.last||9999)-4).map(y=>`<option value="${y}"${y===M.from?" selected":""}>${y}</option>`).join("");
+  $("#mModel").value=M.st.model||"auto";const scale=M.st.scale||s.scale||"lin";$("#mScale").value=scale;
+  const box=$("#chartbox"),W=Math.max(320,box.clientWidth||700),H=Math.round(Math.min(380,Math.max(240,W*0.48))),pad={l:58,r:14,t:26,b:28};
+  const hist=ys.map(y=>[y,s.values[y]]);const fc=[];if(M.m)for(let h=1;h<=M.H;h++){const t=M.last+h;fc.push([t,predict(M.m,t)])}
+  const log=scale==="log";const allV=[...hist.map(p=>p[1]),...fc.flatMap(p=>[p[1].lo,p[1].hi])].filter(v=>isFinite(v)&&(!log||v>0));
+  let lo=Math.min(...allV),hi=Math.max(...allV);if(!log){lo=Math.min(0,lo);}const tv=v=>log?Math.log10(Math.max(v,1e-300)):v;
+  let ylo=tv(log?lo:lo),yhi=tv(hi);if(log){ylo=Math.floor(ylo);yhi=Math.ceil(yhi)}else{const t=niceTicks(ylo,yhi,5);yhi=t[t.length-1]<yhi?t[t.length-1]+(t[1]-t[0]):t[t.length-1]}
+  const x0=ys[0],x1=fc.length?fc[fc.length-1][0]:ys[ys.length-1];const X=x=>pad.l+(x-x0)/((x1-x0)||1)*(W-pad.l-pad.r);const Y=v=>pad.t+(1-(tv(v)-ylo)/((yhi-ylo)||1))*(H-pad.t-pad.b);
+  let g="";const yt=log?Array.from({length:yhi-ylo+1},(_,i)=>Math.pow(10,ylo+i)):niceTicks(ylo,yhi,5);
+  const thin=log&&yt.length>8?Math.ceil(yt.length/8):1;
+  yt.forEach((v,i)=>{if(i%thin)return;const y=Y(v);g+=`<line x1="${pad.l}" x2="${W-pad.r}" y1="${y}" y2="${y}" stroke="var(--grid)" stroke-width="1"/><text x="${pad.l-8}" y="${y+4}" text-anchor="end" font-size="11" fill="var(--ink-3)" font-family="var(--f-mono)">${fmt(v,s.unit)}</text>`});
+  const step=(x1-x0)>14?4:(x1-x0)>7?2:1;for(let x=Math.ceil(x0/step)*step;x<=x1;x+=step)g+=`<text x="${X(x)}" y="${H-8}" text-anchor="middle" font-size="11" fill="var(--ink-3)" font-family="var(--f-mono)">${x}</text>`;
+  g+=`<line x1="${pad.l}" x2="${W-pad.r}" y1="${H-pad.b}" y2="${H-pad.b}" stroke="var(--rule)"/>`;
+  if(M.from>x0)g+=`<rect x="${pad.l}" y="${pad.t}" width="${X(M.from)-pad.l}" height="${H-pad.t-pad.b}" fill="var(--chip)" opacity=".6"/><text x="${pad.l+4}" y="${pad.t+12}" font-size="10.5" fill="var(--ink-3)">not fitted</text>`;
+  if(fc.length){const lp=hist.filter(p=>p[0]===M.last)[0]||[M.last,M.P[M.P.length-1][1]];
+    const up=[[lp[0],lp[1]],...fc.map(p=>[p[0],p[1].hi])],dn=[...fc.map(p=>[p[0],Math.max(p[1].lo,log?1e-300:-Infinity)])].reverse().concat([[lp[0],lp[1]]]);
+    const clampY=v=>Math.min(H-pad.b,Math.max(pad.t,Y(v)));
+    g+=`<path d="${[...up,...dn].map((p,i)=>(i?"L":"M")+X(p[0]).toFixed(1)+" "+clampY(p[1]).toFixed(1)).join("")}Z" fill="var(--band)" stroke="none"/>`;
+    g+=`<path d="${[[lp[0],lp[1]],...fc.map(p=>[p[0],p[1].p50])].map((p,i)=>(i?"L":"M")+X(p[0]).toFixed(1)+" "+clampY(p[1]).toFixed(1)).join("")}" fill="none" stroke="var(--fcst)" stroke-width="2" stroke-dasharray="6 4"/>`;
+    const e=fc[fc.length-1];g+=`<circle cx="${X(e[0])}" cy="${clampY(e[1].p50)}" r="4" fill="var(--fcst)" stroke="var(--panel)" stroke-width="2"/>`}
+  const hp=hist.filter(p=>p[1]!==null&&(!log||p[1]>0));
+  const hf=hp.filter(p=>p[0]!==s.partial_year),hy=hp.find(p=>p[0]===s.partial_year);
+  g+=`<path d="${hf.map((p,i)=>(i?"L":"M")+X(p[0]).toFixed(1)+" "+Y(p[1]).toFixed(1)).join("")}" fill="none" stroke="var(--hist)" stroke-width="2"/>`;
+  if(hy&&hf.length){const a=hf[hf.length-1];g+=`<path d="M${X(a[0]).toFixed(1)} ${Y(a[1]).toFixed(1)}L${X(hy[0]).toFixed(1)} ${Y(hy[1]).toFixed(1)}" fill="none" stroke="var(--hist)" stroke-width="1.5" stroke-dasharray="1 3"/><text x="${X(hy[0])-7}" y="${Y(hy[1])-8}" text-anchor="end" font-size="10.5" fill="var(--ink-3)">${hy[0]} YTD</text>`}
+  hp.forEach(p=>{const part=s.partial_year===p[0];g+=`<circle cx="${X(p[0])}" cy="${Y(p[1])}" r="${part?3.5:2.5}" fill="${part?"var(--panel)":"var(--hist)"}" stroke="var(--hist)" stroke-width="${part?1.5:0}"/>`});
+  const HA=histAlerts(s),byY={};HA.forEach(a=>{(byY[a.year]=byY[a.year]||[]).push(a)});
+  Object.entries(byY).forEach(([y,arr])=>{if(+y<x0||+y>x1)return;arr.sort((a,b)=>window.HRZN.SEV[b.sev]-window.HRZN.SEV[a.sev]);const cx=X(+y);g+=`<path d="M${(cx-5).toFixed(1)} 5L${(cx+5).toFixed(1)} 5L${cx.toFixed(1)} 14Z" fill="${SEVC[arr[0].sev]}"/>`});
+  const EV=chartEvents(s,x0,x1);
+  EV.forEach((e,i)=>{const ex=X(Math.max(e.x,x0-0.5));if(e.x2)g+=`<rect x="${ex}" y="${pad.t}" width="${Math.max(2,X(Math.min(e.x2,x1))-ex)}" height="${H-pad.t-pad.b}" fill="var(--ink-3)" opacity=".08"/>`;g+=`<line x1="${ex}" x2="${ex}" y1="${pad.t}" y2="${H-pad.b}" stroke="var(--ink-3)" stroke-dasharray="1 4"/><circle cx="${ex}" cy="${H-pad.b-10}" r="8" fill="var(--panel)" stroke="var(--ink-2)"/><text x="${ex}" y="${H-pad.b-6.5}" text-anchor="middle" font-size="10" font-weight="600" fill="var(--ink)">${i+1}</text>`});
+  g+=`<line id="xh" x1="0" x2="0" y1="${pad.t}" y2="${H-pad.b}" stroke="var(--ink-3)" stroke-dasharray="2 3" visibility="hidden"/><rect id="hit" x="${pad.l}" y="${pad.t}" width="${W-pad.l-pad.r}" height="${H-pad.t-pad.b}" fill="transparent"/>`;
+  const svg=$("#chart");svg.setAttribute("viewBox",`0 0 ${W} ${H}`);svg.innerHTML=g;
+  const tip=$("#tip"),xh=svg.querySelector("#xh");
+  const onMove=ev=>{const r=svg.getBoundingClientRect();const px=(ev.clientX-r.left)*(W/r.width);const yr=Math.round(x0+(px-pad.l)/(W-pad.l-pad.r)*(x1-x0));if(yr<x0||yr>x1){tip.hidden=true;return}
+    const f=fc.find(p=>p[0]===yr);const v=s.values[yr];let html=`<b class="num">${yr}</b>`;
+    if(v!==null&&v!==undefined)html+=`<div>Reported: <span class="num">${fmt(v,s.unit)}</span>${s.partial_year===yr?" (YTD)":""}</div>`;
+    if(s.labels&&s.labels[yr])html+=`<div class="tiny">${s.labels[yr]}</div>`;
+    if(f)html+=`<div>Median: <span class="num">${fmt(f[1].p50,s.unit)}</span></div><div class="tiny">80%: ${fmt(Math.max(f[1].lo,0),s.unit)} – ${fmt(f[1].hi,s.unit)}</div>`;
+    (byY[yr]||[]).forEach(a=>{html+=`<div class="tiny"><span style="color:${SEVC[a.sev]}">${SEVLAB[a.sev]}</span> ${RULE_NAME(a.rule)}</div>`});
+    EV.filter(e=>Math.floor(e.x+0.5)===yr||(e.x2&&yr>=Math.floor(e.x+0.5)&&yr<=Math.floor(e.x2+0.5))).forEach(e=>{html+=`<div class="tiny">${EV.indexOf(e)+1}. ${e.title} (${e.date})</div>`});
+    if(html===`<b class="num">${yr}</b>`)html+=`<div class="tiny">No data</div>`;
+    tip.innerHTML=html;tip.hidden=false;xh.setAttribute("x1",X(yr));xh.setAttribute("x2",X(yr));xh.setAttribute("visibility","visible");
+    const bx=box.getBoundingClientRect();let left=ev.clientX-bx.left+12;if(left>bx.width-170)left=ev.clientX-bx.left-170;tip.style.left=left+"px";tip.style.top=Math.max(0,ev.clientY-bx.top-60)+"px"};
+  const hit=svg.querySelector("#hit");hit.addEventListener("pointermove",onMove);hit.addEventListener("pointerleave",()=>{tip.hidden=true;xh.setAttribute("visibility","hidden")});
+  // side panel
+  const lab={linear:"Linear",exp:"Exponential",logistic:"Logistic S-curve"}[M.key]||"none";
+  if(M.m&&fc.length){const e=fc[fc.length-1][1];const nxt=fc[0][1];
+    $("#dTaf").textContent=`TAF ${s.id.toUpperCase()} ${M.from}-${M.last} ${lab.toUpperCase()}\nFM${M.last+1} P50 ${fmt(nxt.p50,s.unit)} BAND ${fmt(Math.max(nxt.lo,0),s.unit)}-${fmt(nxt.hi,s.unit)}\nBECMG ${M.last+M.H} P50 ${fmt(e.p50,s.unit)} BAND ${fmt(Math.max(e.lo,0),s.unit)}-${fmt(e.hi,s.unit)}\nPROB80 WITHIN BAND · NO FCST BEYOND ${M.last+M.H}`}
+  else $("#dTaf").textContent="Not enough fitted points for a forecast (need at least 3).";
+  const kv=[["Fitted years",`${M.from}–${M.last} (${M.P.length})`],["Model",lab]];
+  if(M.key==="exp"&&M.m)kv.push(["Growth / yr",pct(Math.exp(M.m.b)-1)],[M.m.b>0?"Doubling time":"Halving time",(Math.log(2)/Math.abs(M.m.b)).toFixed(1)+" yrs"]);
+  if(M.key==="linear"&&M.m)kv.push(["Added / yr",fmt(M.m.b,s.unit)]);
+  if(M.key==="logistic"&&M.m)kv.push(["Ceiling K",fmt(M.m.K,s.unit)],["Rate r",M.m.r.toFixed(3)]);
+  kv.push(["Safe horizon",`${M.H} yr${M.H>1?"s":""} (to ${M.last+M.H})`]);
+  $("#dKv").innerHTML=kv.map(([k,v])=>`<dt>${k}</dt><dd>${v}</dd>`).join("");
+  $("#dDef").innerHTML=`<b>Definition.</b> ${s.definition}${s.notes?`<br><b>Caveats.</b> ${s.notes}`:""}${s.why?`<br><b>Analyst note</b> <span class="tiny">(interpretation, not sourced data)</span>. ${s.why}`:""}`;
+  $("#dEvents").innerHTML=EV.length?`<h3 style="font-size:15px">Events on this chart</h3><ol>${EV.map(e=>`<li><span class="num">${e.end?e.date.slice(0,4)+"–"+e.end.slice(0,4):e.date}</span> · ${e.title}. <span class="muted">${e.desc}</span> <a href="${e.source_url}" target="_blank" rel="noopener">Source</a>${e.status==="verified-secondary"?' <span class="tiny">(secondary source)</span>':""}</li>`).join("")}</ol>`:"";
+  $("#dHist").innerHTML=HA.length?`<h3 style="font-size:15px">Rules that would have fired, by year</h3><div class="tablewrap"><table><thead><tr><th>Year</th><th>Severity</th><th>Rule</th><th>What happened</th></tr></thead><tbody>${HA.slice().reverse().map(a=>`<tr><td class="num">${a.year}</td><td><span class="sev ${a.sev}">${SEVLAB[a.sev]}</span></td><td>${RULE_NAME(a.rule)}</td><td>${a.title.replace(s.title+": ","")}</td></tr>`).join("")}</tbody></table></div>`:"";
+  $("#dSrc").innerHTML=`Source: <a href="${s.source_url}" target="_blank" rel="noopener">${s.source_name}</a>${s.asof?` · data through ${s.asof}`:""}${s.verification?`<br><b>Verification.</b> ${s.verification}`:""}`;
+  $("#dTable").innerHTML=`<table><thead><tr><th>Year</th><th class="n">Reported</th><th class="n">Forecast median</th><th class="n">80% band</th></tr></thead><tbody>${hist.map(p=>`<tr><td>${p[0]}${s.partial_year===p[0]?" (YTD)":""}</td><td class="n">${fmt(p[1],s.unit)}</td><td class="n"></td><td class="n"></td></tr>`).join("")}${fc.map(p=>`<tr><td>${p[0]}</td><td class="n"></td><td class="n">${fmt(p[1].p50,s.unit)}</td><td class="n">${fmt(Math.max(p[1].lo,0),s.unit)} – ${fmt(p[1].hi,s.unit)}</td></tr>`).join("")}</tbody></table>`;
+}
+function setM(k,v){const s=SERIES.find(x=>x.id===sel);settings.m=settings.m||{};settings.m[s.id]=Object.assign({},settings.m[s.id],{[k]:v});store.set("hrzn.settings.v1",settings);renderBoard();renderDetail();runAlerts()}
+$("#mModel").addEventListener("change",e=>setM("model",e.target.value));
+$("#mFrom").addEventListener("change",e=>setM("from",+e.target.value));
+$("#mScale").addEventListener("change",e=>setM("scale",e.target.value));
+
+/* ---------- bets ---------- */
+function betModelP(b){if(b.kind!=="series")return null;const s=SERIES.find(x=>x.id===b.series);if(!s)return null;const M=model(s);if(!M.m||b.year<=M.last||b.year>M.last+M.H)return null;return probAtLeast(M.m,b.year,b.threshold)}
+function betDataSays(b){if(b.kind!=="series")return null;const s=SERIES.find(x=>x.id===b.series);if(!s)return null;const v=s.values[b.year];if(v===null||v===undefined||s.partial_year===b.year)return null;return v>=b.threshold}
+function renderBets(){
+  const res=bets.filter(b=>b.outcome===true||b.outcome===false);const scored=res.filter(b=>typeof b.p==="number");
+  const brier=scored.length?scored.reduce((a,b)=>a+(b.p/100-(b.outcome?1:0))**2,0)/scored.length:null;
+  const open=bets.filter(b=>b.outcome==null),unset=open.filter(b=>typeof b.p!=="number").length;
+  $("#betScore").innerHTML=`<div><div class="tiny">Brier score (resolved)</div><div class="big num">${brier===null?"—":brier.toFixed(3)}</div><div class="tiny">${scored.length} scored · 0 perfect · 0.25 coin flip</div></div><div><div class="tiny">Open bets</div><div class="big num">${open.length}</div><div class="tiny">${unset?unset+" need your probability":"all have a probability"}</div></div><div><div class="tiny">Hit rate</div><div class="big num">${res.length?Math.round(res.filter(b=>b.outcome).length/res.length*100)+"%":"—"}</div><div class="tiny">${res.length} resolved</div></div>`;
+  const today=new Date().toISOString().slice(0,10);
+  $("#betTable tbody").innerHTML=bets.map((b,i)=>{const mp=betModelP(b),ds=betDataSays(b);
+    let st=b.outcome===true?'<span class="chip good">Hit</span>':b.outcome===false?'<span class="chip crit">Miss</span>':b.due<today?'<span class="chip warn">Overdue</span>':'<span class="chip">Open</span>';
+    const act=b.outcome==null?`${ds!==null?`<button class="btn ghost" data-a="data" data-i="${i}">Data says ${ds?"hit":"miss"}</button> `:""}<button class="btn ghost" data-a="hit" data-i="${i}">Hit</button> <button class="btn ghost" data-a="miss" data-i="${i}">Miss</button>`:`<button class="btn ghost" data-a="reopen" data-i="${i}">Reopen</button>`;
+    return`<tr><td style="min-width:220px">${b.claim}${b.seed?'<div class="tiny">Suggested starter bet. Set your own probability, edit or delete it.</div>':""}${b.phase?`<div class="tiny">${b.phase}</div>`:""}</td><td class="num">${b.due}</td>
+    <td class="n"><input type="number" min="1" max="99" value="${typeof b.p==="number"?b.p:""}" placeholder="set" aria-label="My probability for bet ${i+1}" data-p="${i}" style="width:64px;text-align:right"></td>
+    <td class="n">${mp===null?'<span class="tiny">n/a</span>':Math.round(mp*100)+"%"}</td><td>${st}</td><td style="white-space:nowrap">${act} <button class="btn ghost" data-a="del" data-i="${i}" aria-label="Delete bet">✕</button></td></tr>`}).join("")||`<tr><td colspan="6" class="muted">No bets yet. Add one below.</td></tr>`;
+  $("#betTable").querySelectorAll("input[data-p]").forEach(el=>el.addEventListener("change",()=>{const v=+el.value;bets[+el.dataset.p].p=v>=1&&v<=99?v:undefined;saveBets()}));
+  $("#betTable").querySelectorAll("button[data-a]").forEach(el=>el.addEventListener("click",()=>{const i=+el.dataset.i,a=el.dataset.a;
+    if(a==="hit")bets[i].outcome=true;else if(a==="miss")bets[i].outcome=false;else if(a==="data")bets[i].outcome=betDataSays(bets[i]);else if(a==="reopen")bets[i].outcome=null;else if(a==="del"){if(el.dataset.c){bets.splice(i,1)}else{el.dataset.c="1";el.textContent="Confirm";return}}
+    saveBets()}));
+}
+function saveBets(){store.set("hrzn.bets.v1",bets);renderBets();runAlerts()}
+$("#bSeries").innerHTML=SERIES.map(s=>`<option value="${s.id}">${s.title}</option>`).join("");
+$("#betForm").addEventListener("submit",e=>{e.preventDefault();const k=$("#bKind").value;const p=+$("#bP").value;
+  const b={id:"b"+Date.now(),claim:$("#bClaim").value.trim(),kind:k,due:$("#bDue").value,outcome:null,created:new Date().toISOString().slice(0,10)};
+  if(p>=1&&p<=99)b.p=p;if(k==="series"){b.series=$("#bSeries").value;b.year=+$("#bYear").value;b.threshold=+$("#bThr").value}
+  bets.push(b);saveBets();e.target.reset();toast("Bet added")});
+
+/* ---------- signposts ---------- */
+const SPST={watching:"",moving:"warn",arrived:"good",fading:"crit"};
+function renderSP(){$("#spList").innerHTML=sps.map((s,i)=>`<div class="sp"><div style="min-width:0"><b>${s.title}</b> <span class="tiny">· ${s.domain}</span><div class="muted" style="font-size:13.5px">${s.what}</div>${s.link?`<div class="tiny"><a href="${s.link}" target="_blank" rel="noopener">Where to watch</a></div>`:""}
+  <label class="ctl" for="spn${i}" style="margin-top:6px">Evidence / last change<input id="spn${i}" data-n="${i}" value="${(s.note||"").replace(/"/g,"&quot;")}" placeholder="date — what you saw"></label></div>
+  <div style="display:grid;gap:6px;justify-items:end;align-content:start"><span class="chip ${SPST[s.state]||""}">${s.state[0].toUpperCase()+s.state.slice(1)}</span>
+  <select aria-label="State of ${s.title}" data-s="${i}">${Object.keys(SPST).map(k=>`<option${k===s.state?" selected":""}>${k}</option>`).join("")}</select></div></div>`).join("");
+  $("#spList").querySelectorAll("select[data-s]").forEach(el=>el.addEventListener("change",()=>{sps[+el.dataset.s].state=el.value;sps[+el.dataset.s].changed=new Date().toISOString().slice(0,10);store.set("hrzn.signposts.v1",sps);renderSP();runAlerts()}));
+  $("#spList").querySelectorAll("input[data-n]").forEach(el=>el.addEventListener("change",()=>{sps[+el.dataset.n].note=el.value;sps[+el.dataset.n].changed=new Date().toISOString().slice(0,10);store.set("hrzn.signposts.v1",sps);runAlerts()}));}
+const rn=$("#revNotes");rn.value=store.get("hrzn.review.v1","");rn.addEventListener("input",()=>store.set("hrzn.review.v1",rn.value));
+
+/* ---------- io ---------- */
+function toast(t){const el=$("#toast");el.textContent=t;el.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(()=>el.hidden=true,1800)}
+const dump=()=>JSON.stringify({kind:"hrzn-signpost-board",saved:new Date().toISOString(),bets,signposts:sps,review:rn.value,settings,rules,acks,alertlog:alog},null,2);
+$("#exportBtn").addEventListener("click",()=>{const t=dump();$("#ioBox").value=t;try{navigator.clipboard.writeText(t).then(()=>toast("Copied"),()=>{$("#ioBox").select();toast("Select-all and copy")})}catch(e){$("#ioBox").select()}});
+const dlB=$("#dlBtn");if(dlB)dlB.addEventListener("click",()=>{const t=dump();$("#ioBox").value=t;try{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([t],{type:"application/json"}));a.download="hrzn-board-state.json";a.click();toast("Download started (if blocked, use Copy JSON)")}catch(e){toast("Use Copy JSON")}});
+$("#importBtn").addEventListener("click",()=>{try{const d=JSON.parse($("#ioBox").value);if(d.bets)bets=d.bets;if(d.signposts)sps=d.signposts;if(typeof d.review==="string"){rn.value=d.review;store.set("hrzn.review.v1",d.review)}if(d.settings)settings=d.settings;if(d.rules){rules=d.rules;store.set("hrzn.rules.v1",rules)}if(d.acks){acks=d.acks;store.set("hrzn.acks.v1",acks)}if(d.alertlog){alog=d.alertlog;store.set("hrzn.alertlog.v1",alog)}store.set("hrzn.bets.v1",bets);store.set("hrzn.signposts.v1",sps);store.set("hrzn.settings.v1",settings);renderAll();toast("Loaded")}catch(e){toast("That isn't valid JSON from this board")}});
+$("#resetBtn").addEventListener("click",e=>{if(!e.target.dataset.c){e.target.dataset.c="1";e.target.textContent="Confirm reset";return}bets=DEF_BETS.map(b=>({...b}));sps=DEF_SP.map(s=>({...s}));settings={};store.set("hrzn.bets.v1",bets);store.set("hrzn.signposts.v1",sps);store.set("hrzn.settings.v1",settings);e.target.textContent="Reset to defaults";delete e.target.dataset.c;sel=SERIES[0].id;renderAll();toast("Reset")});
+
+/* ---------- alerts ---------- */
+let ALERTS=[];
+function runAlerts(){ALERTS=window.HRZN.evaluate({series:SERIES,bets,signposts:sps,rules,settings,now:new Date(),fmt:(v,s)=>fmt(v,s&&s.unit)});
+  const today=new Date().toISOString().slice(0,10);let ch=false;for(const a of ALERTS){if(!alog.find(x=>x.fp===a.fp)){alog.unshift({fp:a.fp,sev:a.sev,title:a.title,first:today});ch=true}}
+  for(const x of alog){if(acks[x.fp]&&!x.acked){x.acked=acks[x.fp];ch=true}if(!ALERTS.find(a=>a.fp===x.fp)&&!x.cleared){x.cleared=today;ch=true}}
+  if(alog.length>200)alog.length=200;if(ch)store.set("hrzn.alertlog.v1",alog);
+  $("#alertLog").innerHTML=alog.length?`<table><thead><tr><th>First seen</th><th>Severity</th><th>Alert</th><th>Acknowledged</th><th>Cleared</th></tr></thead><tbody>${alog.slice(0,60).map(x=>`<tr><td class="num">${x.first}</td><td><span class="sev ${x.sev}">${SEVLAB[x.sev]}</span></td><td>${x.title}</td><td class="num">${x.acked||""}</td><td class="num">${x.cleared||""}</td></tr>`).join("")}</tbody></table>`:'<p class="tiny">Empty.</p>';
+  const open=ALERTS.filter(a=>!acks[a.fp]);const c=k=>open.filter(a=>a.sev===k).length;
+  $("#alertBadge").textContent=open.length?`(${c("high")?c("high")+"H ":""}${open.length})`:"";
+  $("#alertSummary").innerHTML=["high","medium","low"].map(k=>`<div><div class="tiny">${SEVLAB[k]}</div><div class="big num">${c(k)}</div></div>`).join("")+`<div><div class="tiny">Acknowledged</div><div class="big num">${ALERTS.length-open.length}</div></div><div class="tiny" style="max-width:40ch">Alerts recompute whenever data, bets or signposts change. Acknowledged alerts re-open if their numbers change.</div>`;
+  const showA=$("#showAcked").checked;const list=ALERTS.filter(a=>showA||!acks[a.fp]);
+  $("#alertList").innerHTML=list.map(a=>`<div class="al${acks[a.fp]?" acked":""}"><span class="sev ${a.sev}">${SEVLAB[a.sev]}</span><span class="t">${a.title}</span><span>${acks[a.fp]?`<button class="btn ghost" data-u="${encodeURIComponent(a.fp)}">Re-open</button>`:`<button class="btn ghost" data-k="${encodeURIComponent(a.fp)}">Acknowledge</button>`}</span><span class="d">${a.detail}<br><span class="tiny">Rule: ${(rules.rules.find(r=>r.id===a.rule)||{}).name||a.rule}</span></span></div>`).join("")||`<p class="muted">No open alerts. Quiet board.</p>`;
+  $("#alertList").querySelectorAll("button[data-k]").forEach(b=>b.addEventListener("click",()=>{acks[decodeURIComponent(b.dataset.k)]=new Date().toISOString().slice(0,10);store.set("hrzn.acks.v1",acks);runAlerts()}));
+  $("#alertList").querySelectorAll("button[data-u]").forEach(b=>b.addEventListener("click",()=>{delete acks[decodeURIComponent(b.dataset.u)];store.set("hrzn.acks.v1",acks);runAlerts()}));}
+$("#showAcked").addEventListener("change",runAlerts);
+function renderRules(){$("#ruleTable tbody").innerHTML=rules.rules.map((r,i)=>`<tr><td><input type="checkbox" id="ru${i}" data-on="${i}"${r.enabled!==false?" checked":""} aria-label="Enable ${r.name}"></td><td style="min-width:200px"><label for="ru${i}"><b>${r.name}</b></label> <span class="tiny">· ${r.group}</span><div class="tiny">${r.help}</div></td><td><div class="pgrid">${Object.entries(r.params).map(([k,v])=>typeof v==="number"?`<label class="ctl" for="rp${i}${k}">${k.replace(/_/g," ")}<input type="number" step="any" id="rp${i}${k}" data-r="${i}" data-k="${k}" value="${v}"></label>`:`<label class="ctl" for="rp${i}${k}">${k}<select id="rp${i}${k}" data-r="${i}" data-k="${k}">${(k==="mode"?["adaptive","fixed"]:["high","medium","low"]).map(o=>`<option${o===v?" selected":""}>${o}</option>`).join("")}</select></label>`).join("")||'<span class="tiny">No settings</span>'}</div></td></tr>`).join("");
+  $("#ruleTable").querySelectorAll("input[data-on]").forEach(el=>el.addEventListener("change",()=>{rules.rules[+el.dataset.on].enabled=el.checked;saveRules()}));
+  $("#ruleTable").querySelectorAll("[data-r]").forEach(el=>el.addEventListener("change",()=>{const r=rules.rules[+el.dataset.r];r.params[el.dataset.k]=el.tagName==="SELECT"?el.value:+el.value;saveRules()}));}
+function saveRules(){store.set("hrzn.rules.v1",rules);runAlerts()}
+$("#copyRules").addEventListener("click",()=>{const t=JSON.stringify(rules,null,2);$("#ioBox").value=t;try{navigator.clipboard.writeText(t).then(()=>toast("Rules copied"),()=>toast("Copy blocked: it's in the JSON box on the Method tab"))}catch(e){toast("It's in the JSON box on the Method tab")}});
+$("#resetRules").addEventListener("click",e=>{if(!e.target.dataset.c){e.target.dataset.c="1";e.target.textContent="Confirm reset";return}rules=JSON.parse(JSON.stringify(DEF_RULES));saveRules();renderRules();e.target.textContent="Reset rules";delete e.target.dataset.c;toast("Rules reset")});
+
+/* ---------- hazard timeline ---------- */
+function renderTimeline(){
+  const yrs=[];const maxY=Math.max(...SERIES.flatMap(s=>window.HRZN.years(s)));for(let y=2006;y<=maxY;y++)yrs.push(y);
+  const evs=EVENTS.filter(e=>e.status!=="unverified").slice().sort((a,b)=>a.date.localeCompare(b.date));
+  const evByY={};evs.forEach((e,i)=>{const y=+e.date.slice(0,4);(evByY[y]=evByY[y]||[]).push(i+1)});
+  const glyph={high:"▲",medium:"●",low:"○"};
+  let h=`<table class="tl"><thead><tr><th scope="col">Series</th>${yrs.map(y=>`<th scope="col" class="num">${String(y).slice(2)}</th>`).join("")}</tr></thead><tbody>`;
+  h+=`<tr class="evrow"><td>Events</td>${yrs.map(y=>`<td>${(evByY[y]||[]).join(",")}</td>`).join("")}</tr>`;
+  for(const s of SERIES){const HA=histAlerts(s),by={};HA.forEach(a=>{if(!by[a.year]||window.HRZN.SEV[a.sev]>window.HRZN.SEV[by[a.year].sev])by[a.year]=a});
+    const live=ALERTS.filter(a=>a.ref===s.id&&a.rule==="pace");const has=new Set(window.HRZN.years(s));
+    h+=`<tr><td>${s.title}</td>${yrs.map(y=>{const a=by[y];let c="";
+      if(a)c=`<b style="color:${SEVC[a.sev]}" title="${y}: ${a.title.replace(/"/g,"&quot;")}">${glyph[a.sev]}</b>`;
+      else if(s.partial_year===y&&live.length)c=`<b style="color:${SEVC[live[0].sev]}" title="${live[0].title.replace(/"/g,"&quot;")}">◇</b>`;
+      else if(!has.has(y))c=`<span class="tiny">·</span>`;
+      return`<td class="c">${c}</td>`}).join("")}</tr>`}
+  h+=`</tbody></table>`;$("#tlWrap").innerHTML=h;
+  $("#tlEvents").innerHTML=evs.length?`<h3 style="font-size:15px">Events</h3><ol>${evs.map(e=>`<li><span class="num">${e.end?e.date.slice(0,4)+"–"+e.end.slice(0,4):e.date}</span> · ${e.title}. <span class="muted">${e.desc}</span> <a href="${e.source_url}" target="_blank" rel="noopener">Source</a>${e.status==="verified-secondary"?' <span class="tiny">(secondary source)</span>':""}</li>`).join("")}</ol>`:'<p class="tiny">No verified events loaded.</p>';
+}
+
+/* ---------- tabs + boot ---------- */
+const views=["board","timeline","alerts","bets","signposts","method"];
+function show(v){if(!views.includes(v))v="board";views.forEach(x=>{$("#v-"+x).hidden=x!==v;$("#t-"+x).setAttribute("aria-selected",x===v)});if(v==="board")renderDetail();if(v==="timeline")renderTimeline()}
+document.querySelectorAll("nav.tabs button").forEach(b=>b.addEventListener("click",()=>{show(b.dataset.view);try{history.replaceState(null,"","#"+b.dataset.view)}catch(e){}}));
+function renderAll(){const asof=SERIES.map(s=>s.asof).filter(Boolean).sort().pop();$("#dataAsOf").textContent=asof?"DATA AS OF "+asof:"";renderBoard();renderDetail();renderBets();renderSP();renderRules();runAlerts();renderTimeline()}
+let rz;addEventListener("resize",()=>{clearTimeout(rz);rz=setTimeout(renderDetail,120)});
+renderAll();show((location.hash||"").slice(1));
+// When hosted (e.g. GitHub Pages), prefer the live data files over the embedded copy.
+// When hosted (GitHub Pages), prefer the live data files over the embedded copy.
+const getJ=u=>fetch(u,{cache:"no-store"}).then(r=>r.ok?r.json():null).catch(()=>null);
+Promise.all([getJ("data/series.json"),getJ("data/live/index.json"),getJ("data/events.json")]).then(([d,idx,ev])=>{
+  if(!Array.isArray(d)||!d.length)return;
+  return Promise.all((idx||[]).map(n=>getJ("data/live/"+n))).then(live=>{SERIES=d;window.HRZN.mergeLive(SERIES,live.filter(Boolean));window.HRZN.derive(SERIES);if(Array.isArray(ev))EVENTS=ev;_hc.clear();renderAll()})}).catch(()=>{});
+})();
+</script>

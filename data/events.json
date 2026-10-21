@@ -1,0 +1,199 @@
+[
+ {
+  "id": "stuxnet",
+  "date": "2010-07-16",
+  "title": "Stuxnet's Windows shortcut flaw disclosed",
+  "desc": "Microsoft published Security Advisory 2286198 for the Windows shortcut vulnerability exploited by the malware later named Stuxnet.",
+  "source_url": "https://learn.microsoft.com/en-us/security-updates/securityadvisories/2010/2286198",
+  "series": [
+   "ics-advisories"
+  ],
+  "status": "verified"
+ },
+ {
+  "id": "ua-grid-2015",
+  "date": "2015-12-23",
+  "title": "Ukraine power grid attack",
+  "desc": "About 225,000 customers of three Ukrainian distribution companies lost power after their control systems were remotely compromised (SANS/E-ISAC report).",
+  "source_url": "https://nsarchive.gwu.edu/sites/default/files/documents/3891751/SANS-and-Electricity-Information-Sharing-and.pdf",
+  "series": [
+   "ics-advisories"
+  ],
+  "status": "verified"
+ },
+ {
+  "id": "cna-expansion",
+  "date": "2016-01-01",
+  "end": "2017-12-31",
+  "title": "CVE program federates to many numbering authorities",
+  "desc": "CVE Numbering Authorities grew from 24 at the start of 2016 to 78 in 2017 as the program shifted away from mostly MITRE-issued records. No single dated event.",
+  "source_url": "https://csrc.nist.gov/csrc/media/Presentations/2023/common-vulnerabilities-and-exposures/Jan-25-2023-ssca-levendis.pdf",
+  "series": [
+   "cve-published"
+  ],
+  "status": "verified"
+ },
+ {
+  "id": "wannacry",
+  "date": "2017-05-12",
+  "title": "WannaCry outbreak",
+  "desc": "A self-spreading ransomware worm hit organizations worldwide, including NHS services in England (UK National Audit Office).",
+  "source_url": "https://www.nao.org.uk/wp-content/uploads/2017/10/Investigation-WannaCry-cyber-attack-and-the-NHS-Summary.pdf",
+  "series": [
+   "ic3-losses",
+   "itrc-compromises"
+  ],
+  "status": "verified"
+ },
+ {
+  "id": "notpetya",
+  "date": "2017-06-27",
+  "title": "NotPetya outbreak",
+  "desc": "US-CERT reported multiple Petya ransomware infections affecting organizations in many countries.",
+  "source_url": "https://www.cisa.gov/news-events/alerts/2017/06/27/multiple-petya-ransomware-infections-reported",
+  "series": [
+   "ic3-losses",
+   "itrc-compromises",
+   "ics-advisories"
+  ],
+  "status": "verified"
+ },
+ {
+  "id": "triton",
+  "date": "2017-12-14",
+  "title": "TRITON safety-system malware reported",
+  "desc": "FireEye published analysis of malware built to tamper with Triconex safety instrumented system controllers at a critical infrastructure site.",
+  "source_url": "https://cloud.google.com/blog/topics/threat-intelligence/attackers-deploy-new-ics-attack-framework-triton",
+  "series": [
+   "ics-advisories"
+  ],
+  "status": "verified"
+ },
+ {
+  "id": "covid",
+  "date": "2020-03-11",
+  "title": "WHO characterizes COVID-19 as a pandemic",
+  "desc": "The WHO Director-General said COVID-19 can be characterized as a pandemic.",
+  "source_url": "https://www.who.int/director-general/speeches/detail/who-director-general-s-opening-remarks-at-the-media-briefing-on-covid-19---11-march-2020",
+  "series": [
+   "ic3-complaints",
+   "ic3-losses",
+   "ic3-loss-per-complaint",
+   "robot-installs"
+  ],
+  "status": "verified"
+ },
+ {
+  "id": "solarwinds",
+  "date": "2020-12-13",
+  "title": "SolarWinds compromise: CISA Emergency Directive 21-01",
+  "desc": "CISA ordered federal civilian agencies to disconnect or power down compromised SolarWinds Orion products.",
+  "source_url": "https://www.cisa.gov/emergency-directive-21-01",
+  "series": [
+   "itrc-compromises"
+  ],
+  "status": "verified"
+ },
+ {
+  "id": "colonial",
+  "date": "2021-05-07",
+  "title": "Colonial Pipeline halts operations after ransomware",
+  "desc": "Colonial Pipeline stopped pipeline operations after a ransomware attack; its statement said containment actions affected some of its IT systems.",
+  "source_url": "https://www.worldpipelines.com/business-news/10052021/colonial-pipeline-company-provide-update-on-system-disruption",
+  "series": [
+   "ransomware-victims",
+   "ics-advisories"
+  ],
+  "status": "verified"
+ },
+ {
+  "id": "kev-launch",
+  "date": "2021-11-03",
+  "title": "CISA BOD 22-01 creates the KEV catalog",
+  "desc": "CISA required federal agencies to remediate vulnerabilities listed in a new Known Exploited Vulnerabilities catalog.",
+  "source_url": "https://www.cisa.gov/news/2021/11/03/cisa-releases-directive-reducing-significant-risk-known-exploited-vulnerabilities",
+  "series": [
+   "kev-added",
+   "kev-share"
+  ],
+  "status": "verified"
+ },
+ {
+  "id": "log4shell",
+  "date": "2021-12-10",
+  "title": "Log4Shell disclosed",
+  "desc": "CVE-2021-44228, a remote code execution flaw in the Apache Log4j library, was published.",
+  "source_url": "https://osv.dev/vulnerability/CVE-2021-44228",
+  "series": [
+   "cve-published",
+   "kev-added"
+  ],
+  "status": "verified"
+ },
+ {
+  "id": "ua-invasion",
+  "date": "2022-02-24",
+  "title": "Russia's full-scale invasion of Ukraine",
+  "desc": "Russia began a full-scale military invasion of Ukraine. Shown as a reference date only; no causal claim is made.",
+  "source_url": "https://www.pravda.com.ua/eng/news/2022/02/24/7325222/",
+  "series": [
+   "gnss-loss-rate"
+  ],
+  "status": "verified"
+ },
+ {
+  "id": "chatgpt",
+  "date": "2022-11-30",
+  "title": "ChatGPT released",
+  "desc": "OpenAI made ChatGPT publicly available.",
+  "source_url": "https://openai.com/index/chatgpt/",
+  "series": [
+   "ai-frontier-compute"
+  ],
+  "status": "verified"
+ },
+ {
+  "id": "moveit",
+  "date": "2023-05-31",
+  "title": "MOVEit Transfer zero-day disclosed",
+  "desc": "Progress disclosed a SQL injection flaw (CVE-2023-34362) in MOVEit Transfer that was already being exploited, with exploitation dating to at least May 27.",
+  "source_url": "https://www.rapid7.com/blog/post/2023/06/14/etr-cve-2023-34362-moveit-vulnerability-timeline-of-events",
+  "series": [
+   "itrc-compromises",
+   "ransomware-victims",
+   "kev-added"
+  ],
+  "status": "verified"
+ },
+ {
+  "id": "nvd-backlog",
+  "date": "2024-02-15",
+  "title": "NVD announces CVE analysis delays",
+  "desc": "A notice on the NVD website said to expect delays in CVE analysis during a program transition. Date confirmed by secondary reporting; NIST's own page was not reachable for verification.",
+  "source_url": "https://therecord.media/vulnerability-database-backlog-nist-support",
+  "series": [
+   "cve-published"
+  ],
+  "status": "verified-secondary"
+ },
+ {
+  "id": "crowdstrike",
+  "date": "2024-07-19",
+  "title": "CrowdStrike content update outage (non-malicious)",
+  "desc": "A faulty Falcon sensor configuration update crashed Windows hosts worldwide, disrupting airlines among others.",
+  "source_url": "https://www.crowdstrike.com/blog/falcon-content-update-preliminary-post-incident-report/",
+  "series": [],
+  "status": "verified"
+ },
+ {
+  "id": "cve-funding",
+  "date": "2025-04-16",
+  "title": "CVE program funding lapse averted",
+  "desc": "After MITRE warned its CVE contract would expire, CISA exercised an 11-month option period the day it was due to lapse.",
+  "source_url": "https://www.infosecurity-magazine.com/news/cisa-cve-program-mitre-contract/",
+  "series": [
+   "cve-published"
+  ],
+  "status": "verified"
+ }
+]

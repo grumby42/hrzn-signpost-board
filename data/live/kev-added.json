@@ -1,0 +1,17 @@
+{
+  "series": "kev-added",
+  "asof": "2026-10-16",
+  "fetched": "2026-10-20T19:24Z",
+  "source": "https://raw.githubusercontent.com/cisagov/kev-data/develop/known_exploited_vulnerabilities.json",
+  "catalog_version": "2026.10.16",
+  "total": 1748,
+  "partial_year": 2026,
+  "values": {
+    "2021": 311,
+    "2022": 555,
+    "2023": 187,
+    "2024": 186,
+    "2025": 245,
+    "2026": 264
+  }
+}

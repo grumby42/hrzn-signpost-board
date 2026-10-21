@@ -1,0 +1,113 @@
+[
+ {
+  "id": "seed-cve-2027",
+  "seed": true,
+  "kind": "series",
+  "series": "cve-published",
+  "year": 2027,
+  "threshold": 100000,
+  "due": "2028-02-15",
+  "outcome": null,
+  "claim": "NVD publishes at least 100,000 CVEs in 2027",
+  "phase": "P1 \u00b7 vulnerability volume"
+ },
+ {
+  "id": "seed-kev-2026",
+  "seed": true,
+  "kind": "series",
+  "series": "kev-added",
+  "year": 2026,
+  "threshold": 300,
+  "due": "2027-01-15",
+  "outcome": null,
+  "claim": "CISA adds at least 300 entries to KEV in 2026",
+  "phase": "P1 \u00b7 exploitation"
+ },
+ {
+  "id": "seed-ics-2026",
+  "seed": true,
+  "kind": "series",
+  "series": "ics-advisories",
+  "year": 2026,
+  "threshold": 550,
+  "due": "2027-01-31",
+  "outcome": null,
+  "claim": "At least 550 ICS advisories are published in 2026",
+  "phase": "P1 \u00b7 OT"
+ },
+ {
+  "id": "seed-rw-2026",
+  "seed": true,
+  "kind": "series",
+  "series": "ransomware-victims",
+  "year": 2026,
+  "threshold": 10000,
+  "due": "2027-01-31",
+  "outcome": null,
+  "claim": "Ransomware leak sites post at least 10,000 victims in 2026 (ransomware.live)",
+  "phase": "P1 \u00b7 extortion"
+ },
+ {
+  "id": "seed-ic3-2027",
+  "seed": true,
+  "kind": "series",
+  "series": "ic3-losses",
+  "year": 2027,
+  "threshold": 25000000000,
+  "due": "2028-06-30",
+  "outcome": null,
+  "claim": "IC3 reports at least $25B in losses for 2027",
+  "phase": "P1 \u00b7 fraud"
+ },
+ {
+  "id": "seed-gnss-2026",
+  "seed": true,
+  "kind": "series",
+  "series": "gnss-loss-rate",
+  "year": 2026,
+  "threshold": 65,
+  "due": "2027-06-30",
+  "outcome": null,
+  "claim": "IATA's GPS signal loss rate reaches at least 65 per 1,000 flights in 2026",
+  "phase": "P2 \u00b7 aviation"
+ },
+ {
+  "id": "seed-robots-2026",
+  "seed": true,
+  "kind": "series",
+  "series": "robot-installs",
+  "year": 2026,
+  "threshold": 655000,
+  "due": "2027-10-31",
+  "outcome": null,
+  "claim": "At least 655,000 industrial robots are installed worldwide in 2026 (IFR's own forecast)",
+  "phase": "P3 \u00b7 physical autonomy"
+ },
+ {
+  "id": "seed-faa-rule",
+  "seed": true,
+  "kind": "event",
+  "due": "2028-12-31",
+  "outcome": null,
+  "claim": "By end of 2028, FAA publishes a final rule requiring aircraft network/information-security protection for new type certificates",
+  "phase": "P2 \u00b7 aviation regulation"
+ },
+ {
+  "id": "seed-agent-ot",
+  "seed": true,
+  "kind": "event",
+  "due": "2028-12-31",
+  "outcome": null,
+  "claim": "By end of 2028, a public incident report attributes an OT safety or production impact to an action taken by an AI agent",
+  "phase": "P3 \u00b7 autonomy risk"
+ },
+ {
+  "id": "seed-human-signoff",
+  "seed": true,
+  "kind": "event",
+  "due": "2029-06-30",
+  "outcome": null,
+  "claim": "By mid-2029, a US federal or state regulator requires documented human sign-off for AI-initiated changes to critical-infrastructure control systems",
+  "phase": "P4 \u00b7 the referee role"
+ }
+]

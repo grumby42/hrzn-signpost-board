@@ -1,0 +1,68 @@
+{
+  "generated": "2026-10-20T19:45:03.895Z",
+  "alerts": [
+    {
+      "rule": "pace",
+      "sev": "high",
+      "ref": "kev-added",
+      "key": "2026:2026-10-16",
+      "title": "CISA KEV additions: 2026 on pace for 335 (+36.6%)",
+      "detail": "264 year-to-date as of 2026-10-16 (79% of the year) vs 245 in 2025. Straight-line run-rate; seasonal or bursty series can mislead.",
+      "fp": "pace|kev-added|2026:2026-10-16"
+    },
+    {
+      "rule": "pace",
+      "sev": "high",
+      "ref": "cve-published",
+      "key": "2026:2026-10-19",
+      "title": "CVEs published: 2026 on pace for 104.0K (+116%)",
+      "detail": "82.9K year-to-date as of 2026-10-19 (80% of the year) vs 48.2K in 2025. Straight-line run-rate; seasonal or bursty series can mislead.",
+      "fp": "pace|cve-published|2026:2026-10-19"
+    },
+    {
+      "rule": "yoy",
+      "sev": "medium",
+      "ref": "kev-added",
+      "key": "2025:317",
+      "title": "CISA KEV additions: +31.7% in 2025",
+      "detail": "186 in 2024 → 245 in 2025. Thresholds (fixed): ±25% medium / ±50% high.",
+      "fp": "yoy|kev-added|2025:317"
+    },
+    {
+      "rule": "band_break",
+      "sev": "medium",
+      "ref": "cve-published",
+      "key": "2025",
+      "title": "CVEs published: 2025 broke the trend upward",
+      "detail": "Reported 48.2K; the exponential fit through 2024 expected 38.7K. That's 1.7 standard errors out (medium ≥ 1.645, high ≥ 2.326). Possible regime change or reporting change: check the source.",
+      "fp": "band_break|cve-published|2025"
+    },
+    {
+      "rule": "yoy",
+      "sev": "medium",
+      "ref": "ransomware-victims",
+      "key": "2025:333",
+      "title": "Ransomware leak-site victims: +33.3% in 2025",
+      "detail": "6,112 in 2024 → 8,146 in 2025. Thresholds (fixed): ±25% medium / ±50% high.",
+      "fp": "yoy|ransomware-victims|2025:333"
+    },
+    {
+      "rule": "pace",
+      "sev": "medium",
+      "ref": "ransomware-victims",
+      "key": "2026:2026-10-19",
+      "title": "Ransomware leak-site victims: 2026 on pace for 10.5K (+28.7%)",
+      "detail": "8,360 year-to-date as of 2026-10-19 (80% of the year) vs 8,146 in 2025. Straight-line run-rate; seasonal or bursty series can mislead.",
+      "fp": "pace|ransomware-victims|2026:2026-10-19"
+    },
+    {
+      "rule": "band_break",
+      "sev": "low",
+      "ref": "isc2-workforce",
+      "key": "2024",
+      "title": "Cyber workforce size: 2024 broke the trend downward",
+      "detail": "Reported 5.50M; the linear fit through 2023 expected 6.12M. That's 6.1 standard errors out (medium ≥ 1.645, high ≥ 2.326). Possible regime change or reporting change: check the source.",
+      "fp": "band_break|isc2-workforce|2024"
+    }
+  ]
+}

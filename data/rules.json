@@ -1,0 +1,130 @@
+{
+  "version": 1,
+  "rules": [
+    {
+      "id": "yoy",
+      "group": "Data",
+      "name": "Year-over-year swing",
+      "enabled": true,
+      "params": {
+        "mode": "adaptive",
+        "medium": 0.25,
+        "high": 0.5,
+        "pct_medium": 0.85,
+        "pct_high": 0.95,
+        "min_history": 6
+      },
+      "help": "Latest full year's change vs the year before. In adaptive mode the thresholds are this series' own 85th / 95th percentile of past swings (never below 'medium' / 'high'), so volatile series only fire when unusually volatile. mode: adaptive or fixed."
+    },
+    {
+      "id": "pace",
+      "group": "Data",
+      "name": "Year-to-date pace",
+      "enabled": true,
+      "params": {
+        "medium": 0.15,
+        "high": 0.3,
+        "min_fraction": 0.25
+      },
+      "help": "This year's straight-line run-rate vs last full year, once at least min_fraction of the year has passed. A slowdown of at least 'medium' raises a low alert."
+    },
+    {
+      "id": "band_break",
+      "group": "Data",
+      "name": "Trend break",
+      "enabled": true,
+      "params": {
+        "severity": "high",
+        "z_medium": 1.645,
+        "z_high": 2.326
+      },
+      "help": "Latest full year vs a model fitted without it, in standard errors (z). 1.645 \u2248 outside the 90% band (medium); 2.326 \u2248 outside the 98% band (high). The regime-change detector."
+    },
+    {
+      "id": "accel",
+      "group": "Data",
+      "name": "Acceleration",
+      "enabled": true,
+      "params": {
+        "short_years": 3,
+        "long_years": 10,
+        "medium_pts": 0.15
+      },
+      "help": "Short-window annual growth exceeds long-window growth by at least medium_pts (0.15 = 15 points). The reverse raises a low 'slowing' alert."
+    },
+    {
+      "id": "stale",
+      "group": "Data",
+      "name": "Stale data",
+      "enabled": true,
+      "params": {
+        "max_age_days": 450
+      },
+      "help": "Series not updated for this many days. Most sources publish annually, so ~15 months."
+    },
+    {
+      "id": "bet_due",
+      "group": "Bets",
+      "name": "Bet ready to resolve",
+      "enabled": true,
+      "params": {},
+      "help": "An open bet is past its resolve-by date, or the data that settles it has arrived."
+    },
+    {
+      "id": "bet_gap",
+      "group": "Bets",
+      "name": "You vs the model",
+      "enabled": true,
+      "params": {
+        "pts": 25
+      },
+      "help": "Your probability differs from the trend model's by at least this many percentage points."
+    },
+    {
+      "id": "bet_unset",
+      "group": "Bets",
+      "name": "Bet without a probability",
+      "enabled": true,
+      "params": {},
+      "help": "An open bet has no probability, so it can't be scored."
+    },
+    {
+      "id": "sp_arrived",
+      "group": "Signposts",
+      "name": "Signpost arrived",
+      "enabled": true,
+      "params": {},
+      "help": "A signpost was marked 'arrived'. Re-plan trigger."
+    },
+    {
+      "id": "sp_stale",
+      "group": "Signposts",
+      "name": "Signpost not reviewed",
+      "enabled": true,
+      "params": {
+        "days": 120
+      },
+      "help": "A signpost's state or evidence hasn't changed in this many days."
+    }
+  ],
+  "overrides": {
+    "ai-frontier-compute": {
+      "pace": {
+        "enabled": false
+      },
+      "accel": {
+        "medium_pts": 2
+      }
+    },
+    "isc2-gap": {
+      "band_break": {
+        "severity": "low"
+      }
+    },
+    "isc2-workforce": {
+      "band_break": {
+        "severity": "low"
+      }
+    }
+  }
+}
