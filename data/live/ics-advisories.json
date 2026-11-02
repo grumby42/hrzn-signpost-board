@@ -1,9 +1,9 @@
 {
   "series": "ics-advisories",
-  "asof": "2026-10-22",
-  "fetched": "2026-10-26T19:19Z",
+  "asof": "2026-10-29",
+  "fetched": "2026-11-02T22:19Z",
   "source": "https://raw.githubusercontent.com/icsadvprj/ICS-Advisory-Project/main/ICS-CERT_ADV/CISA_ICS_ADV_Master.csv",
-  "rows": 4098,
+  "rows": 4103,
   "partial_year": 2026,
   "values": {
     "2010": 17,
@@ -21,7 +21,7 @@
     "2022": 399,
     "2023": 381,
     "2024": 423,
-    "2025": 508,
-    "2026": 452
+    "2025": 509,
+    "2026": 456
   }
 }
