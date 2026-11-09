@@ -1,14 +1,14 @@
 {
-  "generated": "2026-11-02T22:19:44.519Z",
+  "generated": "2026-11-09T22:58:53.955Z",
   "alerts": [
     {
       "rule": "pace",
       "sev": "high",
       "ref": "kev-added",
-      "key": "2026:2026-10-30",
-      "title": "CISA KEV additions: 2026 on pace for 341 (+39.1%)",
-      "detail": "282 year-to-date as of 2026-10-30 (83% of the year) vs 245 in 2025. Straight-line run-rate; seasonal or bursty series can mislead.",
-      "fp": "pace|kev-added|2026:2026-10-30"
+      "key": "2026:2026-11-09",
+      "title": "CISA KEV additions: 2026 on pace for 338 (+38.0%)",
+      "detail": "289 year-to-date as of 2026-11-09 (85% of the year) vs 245 in 2025. Straight-line run-rate; seasonal or bursty series can mislead.",
+      "fp": "pace|kev-added|2026:2026-11-09"
     },
     {
       "rule": "pace",

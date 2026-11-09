@@ -1,10 +1,10 @@
 {
   "series": "kev-added",
-  "asof": "2026-10-30",
-  "fetched": "2026-11-02T22:19Z",
+  "asof": "2026-11-09",
+  "fetched": "2026-11-09T22:58Z",
   "source": "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json",
-  "catalog_version": "2026.10.30",
-  "total": 1766,
+  "catalog_version": "2026.11.09",
+  "total": 1773,
   "partial_year": 2026,
   "values": {
     "2021": 311,
@@ -12,6 +12,6 @@
     "2023": 187,
     "2024": 186,
     "2025": 245,
-    "2026": 282
+    "2026": 289
   }
 }
